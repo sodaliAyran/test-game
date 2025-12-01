@@ -1,0 +1,190 @@
+[gd_scene load_steps=17 format=3 uid="uid://dlo1nlqynryso"]
+
+[ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
+[ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/hurtbox_component.gd" id="2_lklkc"]
+[ext_resource type="Script" uid="uid://ch8r0xsbtuj63" path="res://scripts/game/components/health_component.gd" id="3_fof2v"]
+[ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="4_ifebp"]
+[ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/idle_state.gd" id="5_1mn2y"]
+[ext_resource type="Script" uid="uid://y1xtoh3og51s" path="res://scenes/characters/enemy/hurt_state.gd" id="6_61nds"]
+[ext_resource type="Script" uid="uid://bqgniqxnc4snp" path="res://scenes/characters/enemy/chase_state.gd" id="7_1mn2y"]
+[ext_resource type="Script" uid="uid://cxcmcc03xpu16" path="res://scripts/game/components/animation_component.gd" id="7_df3bm"]
+[ext_resource type="Script" uid="uid://blt8qxujohwor" path="res://scripts/game/components/enemy_sense_component.gd" id="9_61nds"]
+[ext_resource type="Script" uid="uid://dphatmavxn3u8" path="res://scripts/game/components/pathfinding_component.gd" id="10_df3bm"]
+[ext_resource type="Script" uid="uid://c7bsngihe1vew" path="res://scripts/game/components/movement_component.gd" id="11_vdd08"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
+radius = 11.0
+height = 36.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ap80"]
+radius = 8.39344
+
+[sub_resource type="Animation" id="Animation_ifebp"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D/HurtboxComponent:invincible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_1mn2y"]
+resource_name = "skeleton_hurt"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D/HurtboxComponent:invincible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.001, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.261799, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.00541792, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0.727653, 0.244201, 0.361243, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_61nds"]
+_data = {
+&"RESET": SubResource("Animation_ifebp"),
+&"skeleton_hurt": SubResource("Animation_1mn2y")
+}
+
+[node name="SkeletonSoldier" type="CharacterBody2D"]
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-11, -16)
+shape = SubResource("CapsuleShape2D_vdd08")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(-10, -15)
+scale = Vector2(0.953125, 1.03125)
+texture = ExtResource("1_siti5")
+region_enabled = true
+region_rect = Rect2(0, 128, 32, 32)
+
+[node name="HurtboxComponent" type="Area2D" parent="Sprite2D" node_paths=PackedStringArray("health_component")]
+collision_layer = 32
+collision_mask = 4
+script = ExtResource("2_lklkc")
+health_component = NodePath("../../HealthComponent")
+metadata/_custom_type_script = "uid://c5gmfinumygu4"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/HurtboxComponent"]
+position = Vector2(3.57628e-07, 0)
+shape = SubResource("CapsuleShape2D_0ap80")
+debug_color = Color(0.931449, 0.24244, 0.260464, 0.42)
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state", "hurtbox")]
+script = ExtResource("4_ifebp")
+initial_node_state = NodePath("Idle")
+hurtbox = NodePath("../Sprite2D/HurtboxComponent")
+
+[node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurtbox", "sense")]
+script = ExtResource("5_1mn2y")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+sense = NodePath("../../EnemySenseComponent")
+
+[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("animation")]
+script = ExtResource("6_61nds")
+animation = NodePath("../../AnimationComponent")
+
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense")]
+script = ExtResource("7_1mn2y")
+movement = NodePath("../../MovementComponent")
+pathfinding = NodePath("../../PathfindingComponent")
+sense = NodePath("../../EnemySenseComponent")
+
+[node name="AnimationComponent" type="Node" parent="." node_paths=PackedStringArray("animation_player")]
+script = ExtResource("7_df3bm")
+animation_player = NodePath("../AnimationPlayer")
+name_prefix = "skeleton_"
+metadata/_custom_type_script = "uid://cxcmcc03xpu16"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_61nds")
+}
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 3.0
+target_desired_distance = 3.0
+path_postprocessing = 1
+debug_enabled = true
+
+[node name="EnemySenseComponent" type="Area2D" parent="."]
+collision_layer = 2
+script = ExtResource("9_61nds")
+metadata/_custom_type_script = "uid://blt8qxujohwor"
+
+[node name="PathfindingComponent" type="Node" parent="." node_paths=PackedStringArray("agent")]
+script = ExtResource("10_df3bm")
+agent = NodePath("../NavigationAgent2D")
+metadata/_custom_type_script = "uid://dphatmavxn3u8"
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
+script = ExtResource("11_vdd08")
+character_body = NodePath("..")
+move_speed = 25.0
+metadata/_custom_type_script = "uid://c7bsngihe1vew"
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_fof2v")
+max_health = 10
+metadata/_custom_type_script = "uid://ch8r0xsbtuj63"

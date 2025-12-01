@@ -1,0 +1,225 @@
+[gd_scene load_steps=18 format=3 uid="uid://bmwfaoo6fr51r"]
+
+[ext_resource type="Script" uid="uid://d0o1p6dmhgrbt" path="res://scripts/game/components/player_input_component.gd" id="1_ri73v"]
+[ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_tvjxl"]
+[ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/hurtbox_component.gd" id="2_d8o2l"]
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/hitbox_component.gd" id="3_qwo34"]
+[ext_resource type="Script" uid="uid://ch8r0xsbtuj63" path="res://scripts/game/components/health_component.gd" id="4_i7i7x"]
+[ext_resource type="Script" uid="uid://cxcmcc03xpu16" path="res://scripts/game/components/animation_component.gd" id="5_6j80k"]
+[ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="6_mfiuf"]
+[ext_resource type="Script" uid="uid://d27di5d56rco2" path="res://scenes/characters/weapons/idle_state.gd" id="7_ri73v"]
+[ext_resource type="Script" uid="uid://cqaaiklassiab" path="res://scenes/characters/weapons/attack_state.gd" id="8_di7b6"]
+[ext_resource type="Script" uid="uid://c63lojhu32ly3" path="res://scenes/characters/weapons/move_state.gd" id="9_mfiuf"]
+[ext_resource type="Script" uid="uid://c7bsngihe1vew" path="res://scripts/game/components/movement_component.gd" id="11_di7b6"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_di7b6"]
+radius = 3.0
+height = 74.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6j80k"]
+radius = 3.0
+height = 32.0145
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mfiuf"]
+radius = 9.89552
+height = 94.0429
+
+[sub_resource type="Animation" id="Animation_d8o2l"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.35486]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D/HurtboxComponent/CollisionShape2D:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D/HitboxComponent/CollisionShape2D:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite2D/HitboxComponent:active")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_di7b6"]
+resource_name = "sword_attack"
+length = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.02, 0.200463, 0.22, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [2.35486, 1.0472, 3.92699, 3.92699, 2.35619]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D/HurtboxComponent/CollisionShape2D:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.0200463, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D/HitboxComponent/CollisionShape2D:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.0200463, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite2D/HitboxComponent:active")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.02, 0.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qwo34"]
+_data = {
+&"RESET": SubResource("Animation_d8o2l"),
+&"sword_attack": SubResource("Animation_di7b6")
+}
+
+[node name="Sword" type="CharacterBody2D" groups=["Player"]]
+collision_mask = 2
+script = ExtResource("1_ri73v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(35, -1)
+rotation = 1.57079
+shape = SubResource("CapsuleShape2D_di7b6")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+rotation = 2.35486
+scale = Vector2(3.34375, 3.34375)
+texture = ExtResource("1_tvjxl")
+offset = Vector2(-8, -8)
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+script = ExtResource("1_ri73v")
+
+[node name="HurtboxComponent" type="Area2D" parent="Sprite2D" node_paths=PackedStringArray("health_component")]
+position = Vector2(-8.37383, 8.97196)
+scale = Vector2(0.299065, 0.299065)
+collision_layer = 8
+collision_mask = 16
+script = ExtResource("2_d8o2l")
+health_component = NodePath("../../HealthComponent")
+metadata/_custom_type_script = "uid://c5gmfinumygu4"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/HurtboxComponent"]
+position = Vector2(17.4057, -39.2066)
+rotation = -0.791785
+shape = SubResource("CapsuleShape2D_6j80k")
+debug_color = Color(0.898467, 0.293594, 0.298303, 0.42)
+
+[node name="HitboxComponent" type="Area2D" parent="Sprite2D"]
+position = Vector2(-8.37383, 8.97196)
+rotation = 0.00059053
+scale = Vector2(0.299065, 0.299065)
+collision_layer = 4
+collision_mask = 32
+script = ExtResource("3_qwo34")
+metadata/_custom_type_script = "uid://cgv0h7in1cq8x"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/HitboxComponent"]
+position = Vector2(-19.3587, -77.428)
+rotation = -3.93328
+shape = SubResource("CapsuleShape2D_mfiuf")
+debug_color = Color(0.758778, 0.453356, 0, 0.42)
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("4_i7i7x")
+metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_qwo34")
+}
+
+[node name="AnimationComponent" type="Node" parent="." node_paths=PackedStringArray("animation_player")]
+script = ExtResource("5_6j80k")
+animation_player = NodePath("../AnimationPlayer")
+name_prefix = "sword_"
+metadata/_custom_type_script = "uid://cxcmcc03xpu16"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("6_mfiuf")
+initial_node_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement")]
+script = ExtResource("7_ri73v")
+movement = NodePath("../../MovementComponent")
+
+[node name="Attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("animation")]
+script = ExtResource("8_di7b6")
+animation = NodePath("../../AnimationComponent")
+
+[node name="Move" type="Node" parent="StateMachine" node_paths=PackedStringArray("animation", "movement")]
+script = ExtResource("9_mfiuf")
+animation = NodePath("../../AnimationComponent")
+movement = NodePath("../../MovementComponent")
+
+[node name="PlayerInputComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_ri73v")
+metadata/_custom_type_script = "uid://d0o1p6dmhgrbt"
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
+script = ExtResource("11_di7b6")
+character_body = NodePath("..")
+metadata/_custom_type_script = "uid://c7bsngihe1vew"
