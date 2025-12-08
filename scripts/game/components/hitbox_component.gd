@@ -15,6 +15,7 @@ func set_active(value: bool) -> void:
 	
 func _on_area_entered(area: Area2D):
 	if not active:
+		print("Hitbox not active")
 		return
 	if area is not HurtboxComponent:
 		return

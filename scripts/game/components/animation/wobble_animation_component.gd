@@ -14,19 +14,37 @@ func _ready() -> void:
 	if sprite:
 		original_scale = sprite.scale
 
-func get_wobble_offset(delta: float) -> float:
+func play(delta: float, movement_direction: Vector2 = Vector2.ZERO, target_position: Vector2 = Vector2.ZERO) -> void:
 	time += delta
 	var sine_val = sin(time * frequency)
 	
 	if sprite:
-		sprite.rotation = sine_val * rotation_amplitude
-		
-		var cos_val = cos(time * frequency * 2.0)
+		_flip_sprite(target_position)
+		_rotate_sprite(sine_val)
+		_stretch_sprite(sine_val)
+	
+func _flip_sprite(target_position: Vector2) -> void:
+	if target_position != Vector2.ZERO:
+		var owner_node = sprite.get_parent()
+		if owner_node:
+			var direction_to_player = target_position.x - owner_node.global_position.x
+			if direction_to_player < 0:
+				sprite.flip_h = false
+			elif direction_to_player > 0:
+				sprite.flip_h = true
 
+func _rotate_sprite(sine_val: float) -> void:
+	var wobble_rotation = sine_val * rotation_amplitude
+	sprite.rotation = wobble_rotation
+	
+func _stretch_sprite(sine_val: float) -> void:
 		var stretch_factor = 1.0 - abs(sine_val)
 		var new_scale = original_scale
 		new_scale.x -= stretch_factor * scale_amplitude.x
 		new_scale.y += stretch_factor * scale_amplitude.y
 		sprite.scale = new_scale
 
-	return sine_val * amplitude
+func reset() -> void:
+	if sprite:
+		sprite.rotation = 0.0
+		sprite.scale = original_scale

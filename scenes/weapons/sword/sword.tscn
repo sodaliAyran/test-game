@@ -1,0 +1,41 @@
+[gd_scene load_steps=6 format=3 uid="uid://bkmerrmyu553b"]
+
+[ext_resource type="Texture2D" uid="uid://3vcehj1mpljn" path="res://assets/game/objects/pixel_art_sword_slash_sprites.png" id="1_txe8v"]
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/hitbox_component.gd" id="2_ni37t"]
+[ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/components/weapon_component.gd" id="3_weapon"]
+[ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/components/directional_weapon_component.gd" id="4_directional"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1uu3n"]
+size = Vector2(58.25, 44)
+
+[node name="Sword" type="Node2D"]
+
+[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox", "hitbox_collision")]
+script = ExtResource("3_weapon")
+sprite = NodePath("../Sprite2D")
+hitbox = NodePath("../HitboxComponent")
+hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
+attack_cooldown = 1.5
+attack_duration = 0.1
+
+[node name="DirectionalWeaponComponent" type="Node" parent="." node_paths=PackedStringArray("weapon_sprite")]
+script = ExtResource("4_directional")
+weapon_sprite = NodePath("../Sprite2D")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_txe8v")
+region_enabled = true
+region_rect = Rect2(0, 32, 64, 64)
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 32
+script = ExtResource("2_ni37t")
+active = true
+metadata/_custom_type_script = "uid://cgv0h7in1cq8x"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+position = Vector2(0, 2)
+shape = SubResource("RectangleShape2D_1uu3n")
+disabled = true
+debug_color = Color(0.274513, 0.500994, 1, 0.42)

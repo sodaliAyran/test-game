@@ -5,33 +5,34 @@ extends NodeState
 @export var sense: EnemySenseComponent
 @export var hurtbox: HurtboxComponent
 @export var health: HealthComponent
-@export var wobble_animation: WobbleAnimationComponent
+@export var attack_animation: AttackAnimationComponent
 
 var got_hurt: bool = false
 var target: Node2D = null
+var attack_range: float = 35.0
+var attack_cooldown: float = 1.0  # Time between attacks
+var time_since_last_attack: float = 0.0
 
-func _on_process(delta : float) -> void:
+func _on_process(delta: float) -> void:
 	if got_hurt:
 		got_hurt = false
 		transition.emit("Hurt")
-	if not movement or not pathfinding:
-		return
 	
-	if target:
-		pathfinding.set_target_position_throttled(target.global_position)
+	if not target:
+		transition.emit("Idle")
 	
-	var target_direction = pathfinding.get_target_direction()
+	var distance_to_target = owner.global_position.distance_to(target.global_position)
+	if distance_to_target > attack_range:
+		transition.emit("Chase")
 	
-	if target_direction == Vector2.ZERO and target:
-		transition.emit("Attack")
-	
-	if wobble_animation:
-		var player_pos = target.global_position if target else Vector2.ZERO
-		wobble_animation.play(delta, target_direction, player_pos)
-		
-	movement.set_velocity(target_direction)
+	# Attack cooldown and triggering
+	time_since_last_attack += delta
+	if time_since_last_attack >= attack_cooldown and attack_animation:
+		if not attack_animation.is_playing:
+			attack_animation.play()
+			time_since_last_attack = 0.0
 
-func _on_physics_process(_delta : float) -> void:
+func _on_physics_process(_delta: float) -> void:
 	pass
 	
 func _on_next_transitions() -> void:
@@ -39,18 +40,20 @@ func _on_next_transitions() -> void:
 
 func _on_enter() -> void:
 	target = sense.current_target
+	time_since_last_attack = attack_cooldown  # Ready to attack immediately
+	# Stop all movement when entering attack state
+	if movement:
+		movement.set_velocity(Vector2.ZERO)
 	_connect_sense()
 	_connect_hurtbox()
 	_connect_health()
+	_connect_attack_animation()
 
 func _on_exit() -> void:
-	movement.set_velocity(Vector2.ZERO)
-	if wobble_animation:
-		wobble_animation.reset()
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
-
+	_disconnect_attack_animation()
 
 func _connect_hurtbox() -> void:
 	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
@@ -87,3 +90,17 @@ func _on_target_lost(lost_target):
 func _disconnect_sense() -> void:
 	if sense and sense.is_connected("target_lost", _on_target_lost):
 		sense.disconnect("target_lost", Callable(self, "_on_target_lost"))
+
+func _connect_attack_animation() -> void:
+	if attack_animation and not attack_animation.attack_hit.is_connected(_on_attack_hit):
+		attack_animation.attack_hit.connect(_on_attack_hit)
+
+func _on_attack_hit() -> void:
+	# TODO: Deal damage to target when attack hits
+	print("Attack hit!")
+
+func _disconnect_attack_animation() -> void:
+	if attack_animation and attack_animation.attack_hit.is_connected(_on_attack_hit):
+		attack_animation.attack_hit.disconnect(_on_attack_hit)
+	if attack_animation:
+		attack_animation.stop()
