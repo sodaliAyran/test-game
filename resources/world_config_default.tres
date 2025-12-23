@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="WorldConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/world/world_config.gd" id="1_1"]
+
+[resource]
+script = ExtResource("1_1")
+chunk_size = 20
+tile_size = 16
+load_radius = 3
+unload_distance = 5
+update_interval = 0.5
+terrain_set = 0
+terrain_grass = 0
+terrain_water = 1
+water_threshold = 0.3
+noise_frequency = 0.05
+noise_octaves = 3
+noise_gain = 0.5
+tileset_source_id = 3

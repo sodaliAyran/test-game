@@ -18,8 +18,10 @@ height = 36.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kctm8"]
 height = 36.0
 
-[node name="Warrior" type="CharacterBody2D"]
+[node name="Warrior" type="CharacterBody2D" groups=["Player"]]
+z_index = 1
 position = Vector2(141, 10)
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-2, 0)
@@ -35,6 +37,7 @@ region_enabled = true
 region_rect = Rect2(32, 32, 32, 32)
 
 [node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
+collision_mask = 0
 script = ExtResource("2_kctm8")
 health_component = NodePath("../HealthComponent")
 metadata/_custom_type_script = "uid://c5gmfinumygu4"

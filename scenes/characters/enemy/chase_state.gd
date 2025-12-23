@@ -6,6 +6,10 @@ extends NodeState
 @export var hurtbox: HurtboxComponent
 @export var health: HealthComponent
 @export var wobble_animation: WobbleAnimationComponent
+@export var separation: SeparationComponent
+
+@export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
+@export_range(0.0, 1.0) var separation_weight: float = 0.3
 
 var got_hurt: bool = false
 var target: Node2D = null
@@ -20,16 +24,32 @@ func _on_process(delta : float) -> void:
 	if target:
 		pathfinding.set_target_position_throttled(target.global_position)
 	
-	var target_direction = pathfinding.get_target_direction()
+	# Get pathfinding direction
+	var path_direction = pathfinding.get_target_direction()
 	
-	if target_direction == Vector2.ZERO and target:
+	# Get separation direction
+	var separation_direction = Vector2.ZERO
+	if separation:
+		separation_direction = separation.get_separation_vector()
+	
+	# Blend directions with weights
+	var final_direction = Vector2.ZERO
+	if path_direction != Vector2.ZERO or separation_direction != Vector2.ZERO:
+		final_direction = (
+			path_direction * pathfinding_weight + 
+			separation_direction * separation_weight
+		).normalized()
+	
+	# Check if reached target
+	if path_direction == Vector2.ZERO and target:
 		transition.emit("Attack")
 	
+	# Update wobble animation
 	if wobble_animation:
 		var player_pos = target.global_position if target else Vector2.ZERO
-		wobble_animation.play(delta, target_direction, player_pos)
+		wobble_animation.play(delta, final_direction, player_pos)
 		
-	movement.set_velocity(target_direction)
+	movement.set_velocity(final_direction)
 
 func _on_physics_process(_delta : float) -> void:
 	pass

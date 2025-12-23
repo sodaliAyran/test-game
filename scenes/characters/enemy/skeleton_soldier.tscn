@@ -1,9 +1,10 @@
-[gd_scene load_steps=19 format=3 uid="uid://dlo1nlqynryso"]
+[gd_scene load_steps=22 format=3 uid="uid://dlo1nlqynryso"]
 
 [ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/hurtbox_component.gd" id="2_lklkc"]
 [ext_resource type="Script" uid="uid://ch8r0xsbtuj63" path="res://scripts/game/components/health_component.gd" id="3_fof2v"]
 [ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="4_ifebp"]
+[ext_resource type="Script" uid="uid://dn8j86oahck5w" path="res://scenes/characters/enemy/spawn_state.gd" id="4_spawn"]
 [ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/idle_state.gd" id="5_1mn2y"]
 [ext_resource type="Script" uid="uid://y1xtoh3og51s" path="res://scenes/characters/enemy/hurt_state.gd" id="6_61nds"]
 [ext_resource type="Script" uid="uid://bqgniqxnc4snp" path="res://scenes/characters/enemy/chase_state.gd" id="7_1mn2y"]
@@ -15,7 +16,9 @@
 [ext_resource type="Script" uid="uid://850sk6q2ppie" path="res://scripts/game/components/animation/wobble_animation_component.gd" id="12_wobble"]
 [ext_resource type="Script" uid="uid://bstid0r2r8cgw" path="res://scripts/game/components/animation/death_animation_component.gd" id="13_death"]
 [ext_resource type="Script" uid="uid://ba1quthmdt5jv" path="res://scripts/game/components/animation/attack_animation_component.gd" id="14_attack_anim"]
+[ext_resource type="Script" uid="uid://br3qhxoutyjgg" path="res://scripts/game/components/animation/spawn_animation_component.gd" id="15_spawn_anim"]
 [ext_resource type="Script" uid="uid://echlin1jyex0" path="res://scripts/game/components/animation/hurt_stagger_animation_component.gd" id="16_cuj74"]
+[ext_resource type="Script" uid="uid://bcayodtipc5tk" path="res://scripts/game/components/separation_component.gd" id="17_separation"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -27,6 +30,7 @@ radius = 8.39344
 [node name="SkeletonSoldier" type="CharacterBody2D"]
 position = Vector2(0, 2)
 collision_layer = 2
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-2, 0)
@@ -54,7 +58,11 @@ debug_color = Color(0.931449, 0.24244, 0.260464, 0.42)
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("4_ifebp")
-initial_node_state = NodePath("Idle")
+initial_node_state = NodePath("Spawn")
+
+[node name="Spawn" type="Node" parent="StateMachine" node_paths=PackedStringArray("spawn_animation")]
+script = ExtResource("4_spawn")
+spawn_animation = NodePath("../../SpawnAnimationComponent")
 
 [node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurtbox", "sense", "health")]
 script = ExtResource("5_1mn2y")
@@ -66,7 +74,7 @@ health = NodePath("../../HealthComponent")
 script = ExtResource("6_61nds")
 hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
 
-[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation")]
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation")]
 script = ExtResource("7_1mn2y")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -74,6 +82,7 @@ sense = NodePath("../../EnemySenseComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
+separation = NodePath("../../SeparationComponent")
 
 [node name="Attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "attack_animation")]
 script = ExtResource("8_attack")
@@ -93,11 +102,11 @@ death_animation = NodePath("../../DeathAnimationComponent")
 path_desired_distance = 3.0
 target_desired_distance = 30.0
 path_postprocessing = 1
-debug_enabled = true
 
 [node name="EnemySenseComponent" type="Area2D" parent="."]
 collision_layer = 2
 script = ExtResource("9_61nds")
+detection_radius = 500.0
 metadata/_custom_type_script = "uid://blt8qxujohwor"
 
 [node name="PathfindingComponent" type="Node" parent="." node_paths=PackedStringArray("agent")]
@@ -129,7 +138,15 @@ body = NodePath("..")
 script = ExtResource("14_attack_anim")
 sprite = NodePath("../Sprite2D")
 
+[node name="SpawnAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("15_spawn_anim")
+sprite = NodePath("../Sprite2D")
+spawn_duration = 2.0
+
 [node name="HurtStaggerAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("16_cuj74")
 sprite = NodePath("../Sprite2D")
 metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="SeparationComponent" type="Node" parent="."]
+script = ExtResource("17_separation")

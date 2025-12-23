@@ -7,6 +7,7 @@ extends NodeState
 @export var health: HealthComponent
 @export var attack_animation: AttackAnimationComponent
 
+
 var got_hurt: bool = false
 var target: Node2D = null
 var attack_range: float = 35.0
@@ -31,6 +32,7 @@ func _on_process(delta: float) -> void:
 		if not attack_animation.is_playing:
 			attack_animation.play()
 			time_since_last_attack = 0.0
+
 
 func _on_physics_process(_delta: float) -> void:
 	pass

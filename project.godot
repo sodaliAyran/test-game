@@ -11,9 +11,16 @@ config_version=5
 [application]
 
 config/name="Test Game"
-run/main_scene="uid://dyycgipk3et73"
+run/main_scene="uid://kb51agk4ckf8"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SpatialGrid="*res://scripts/game/components/spatial_grid.gd"
+SkillManager="*res://scripts/game/systems/skill_manager.gd"
+SkillTreeLoader="*res://scripts/game/systems/skill_tree_loader.gd"
+SkillDebugInput="*res://scripts/game/systems/skill_debug_input.gd"
 
 [debug]
 
@@ -26,7 +33,7 @@ window/size/viewport_height=360
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="viewport"
-window/stretch/aspect="keep_height"
+window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
 window/vsync/vsync_mode=0
 

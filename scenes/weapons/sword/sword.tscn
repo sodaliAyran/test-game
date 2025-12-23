@@ -1,35 +1,47 @@
-[gd_scene load_steps=6 format=3 uid="uid://bkmerrmyu553b"]
+[gd_scene load_steps=9 format=3 uid="uid://bkmerrmyu553b"]
 
 [ext_resource type="Texture2D" uid="uid://3vcehj1mpljn" path="res://assets/game/objects/pixel_art_sword_slash_sprites.png" id="1_txe8v"]
 [ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/hitbox_component.gd" id="2_ni37t"]
 [ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/components/weapon_component.gd" id="3_weapon"]
 [ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/components/directional_weapon_component.gd" id="4_directional"]
+[ext_resource type="Script" uid="uid://crtoouqenyl57" path="res://scripts/game/components/auto_attack_component.gd" id="5_auto_attack"]
+[ext_resource type="Script" path="res://scripts/game/components/skill_modifier_component.gd" id="6_skill_modifier"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1uu3n"]
 size = Vector2(58.25, 44)
 
 [node name="Sword" type="Node2D"]
 
-[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox", "hitbox_collision")]
+[node name="SkillModifierComponent" type="Node" parent="."]
+script = ExtResource("6_skill_modifier")
+
+[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox", "hitbox_collision", "skill_modifier")]
 script = ExtResource("3_weapon")
 sprite = NodePath("../Sprite2D")
 hitbox = NodePath("../HitboxComponent")
 hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
-attack_cooldown = 1.5
+skill_modifier = NodePath("../SkillModifierComponent")
 attack_duration = 0.1
 
-[node name="DirectionalWeaponComponent" type="Node" parent="." node_paths=PackedStringArray("weapon_sprite")]
+[node name="DirectionalWeaponComponent" type="Node" parent="." node_paths=PackedStringArray("weapon_sprite", "weapon_component", "skill_modifier")]
 script = ExtResource("4_directional")
 weapon_sprite = NodePath("../Sprite2D")
+weapon_component = NodePath("../WeaponComponent")
+skill_modifier = NodePath("../SkillModifierComponent")
+
+[node name="AutoAttackComponent" type="Node" parent="." node_paths=PackedStringArray("weapon", "skill_modifier")]
+script = ExtResource("5_auto_attack")
+weapon = NodePath("../WeaponComponent")
+skill_modifier = NodePath("../SkillModifierComponent")
+attack_cooldown = 2.5
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0)
 texture = ExtResource("1_txe8v")
 region_enabled = true
 region_rect = Rect2(0, 32, 64, 64)
 
 [node name="HitboxComponent" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 32
 script = ExtResource("2_ni37t")
 active = true
 metadata/_custom_type_script = "uid://cgv0h7in1cq8x"
