@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dlo1nlqynryso"]
+[gd_scene load_steps=26 format=3 uid="uid://dlo1nlqynryso"]
 
 [ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/hurtbox_component.gd" id="2_lklkc"]
@@ -19,6 +19,10 @@
 [ext_resource type="Script" uid="uid://br3qhxoutyjgg" path="res://scripts/game/components/animation/spawn_animation_component.gd" id="15_spawn_anim"]
 [ext_resource type="Script" uid="uid://echlin1jyex0" path="res://scripts/game/components/animation/hurt_stagger_animation_component.gd" id="16_cuj74"]
 [ext_resource type="Script" uid="uid://bcayodtipc5tk" path="res://scripts/game/components/separation_component.gd" id="17_separation"]
+[ext_resource type="Script" uid="uid://b35kv6kb2iivw" path="res://scripts/game/components/damage_number_component.gd" id="18_damage_number"]
+[ext_resource type="Script" uid="uid://ddick5omjoqrp" path="res://scripts/game/components/animation/fade_animation_component.gd" id="19_fade_anim"]
+[ext_resource type="Script" uid="uid://dmg7rn14v6nv0" path="res://scripts/game/components/drop_component.gd" id="20_drop"]
+[ext_resource type="PackedScene" uid="uid://cn74jcjtvrdmu" path="res://scenes/objects/coin.tscn" id="21_coin"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -122,7 +126,7 @@ metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_fof2v")
-max_health = 10
+max_health = 15
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
 [node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
@@ -150,3 +154,20 @@ metadata/_custom_type_script = "uid://echlin1jyex0"
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("17_separation")
+
+[node name="FadeAnimationComponent" type="Node" parent="."]
+script = ExtResource("19_fade_anim")
+
+[node name="DamageNumberComponent" type="Node2D" parent="." node_paths=PackedStringArray("hurtbox_component", "fade_animation_component")]
+script = ExtResource("18_damage_number")
+hurtbox_component = NodePath("../Sprite2D/HurtboxComponent")
+fade_animation_component = NodePath("../FadeAnimationComponent")
+font_size = 12
+
+[node name="DropComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
+script = ExtResource("20_drop")
+health_component = NodePath("../HealthComponent")
+drop_scene = ExtResource("21_coin")
+drop_chance = 0.7
+max_drops = 2
+spread_radius = 25.0

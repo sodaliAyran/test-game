@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dqv82jiq04fnh"]
+
+[ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_gt3be"]
+[ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="2_rlfkd"]
+[ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="3_7j2eh"]
+
+[node name="TestObjects" type="Node2D"]
+position = Vector2(0, -2)
+
+[node name="Items" type="Sprite2D" parent="."]
+position = Vector2(186, 130)
+texture = ExtResource("1_gt3be")
+
+[node name="Monsters" type="Sprite2D" parent="."]
+position = Vector2(1566, -3)
+texture = ExtResource("2_rlfkd")
+
+[node name="Rogues" type="Sprite2D" parent="."]
+position = Vector2(939, 697)
+texture = ExtResource("3_7j2eh")

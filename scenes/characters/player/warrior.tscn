@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dj3ftqqhuu0c6"]
+[gd_scene load_steps=16 format=3 uid="uid://dj3ftqqhuu0c6"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/hurtbox_component.gd" id="2_kctm8"]
@@ -11,12 +11,16 @@
 [ext_resource type="Script" uid="uid://dy4uoa8sngtxr" path="res://scenes/characters/player/hurt_state.gd" id="9_nkuma"]
 [ext_resource type="Script" uid="uid://rgiymad01fbd" path="res://scenes/characters/player/idle_state.gd" id="10_hvya8"]
 [ext_resource type="Script" uid="uid://echlin1jyex0" path="res://scripts/game/components/animation/hurt_stagger_animation_component.gd" id="10_kgfjb"]
+[ext_resource type="Script" uid="uid://dppjph4xy4db5" path="res://scripts/game/components/collector_component.gd" id="11_collector"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
 height = 36.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kctm8"]
 height = 36.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_collector"]
+radius = 12.0
 
 [node name="Warrior" type="CharacterBody2D" groups=["Player"]]
 z_index = 1
@@ -87,3 +91,16 @@ script = ExtResource("10_hvya8")
 [node name="HurtStaggerAnimationComponent" type="Node" parent="."]
 script = ExtResource("10_kgfjb")
 metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="CollectorComponent" type="Node2D" parent="." node_paths=PackedStringArray("collection_area")]
+script = ExtResource("11_collector")
+collection_area = NodePath("CollectionArea")
+
+[node name="CollectionArea" type="Area2D" parent="CollectorComponent"]
+collision_layer = 128
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollectorComponent/CollectionArea"]
+position = Vector2(-2, 0)
+shape = SubResource("CircleShape2D_collector")
+debug_color = Color(0.697649, 0.493616, 0, 0.42)
