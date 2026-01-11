@@ -1,0 +1,138 @@
+[gd_scene load_steps=21 format=3 uid="uid://dj3ftqqhuu0c6"]
+
+[ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
+[ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_kctm8"]
+[ext_resource type="Script" uid="uid://d0o1p6dmhgrbt" path="res://scripts/game/components/player/player_input_component.gd" id="4_fdlqk"]
+[ext_resource type="Script" uid="uid://c7bsngihe1vew" path="res://scripts/game/components/core/movement_component.gd" id="5_nkuma"]
+[ext_resource type="Script" uid="uid://850sk6q2ppie" path="res://scripts/game/components/animation/wobble_animation_component.gd" id="6_fdlqk"]
+[ext_resource type="Script" uid="uid://ch8r0xsbtuj63" path="res://scripts/game/components/core/health_component.gd" id="6_kgfjb"]
+[ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="7_nkuma"]
+[ext_resource type="Script" uid="uid://153iuwnhk70r" path="res://scenes/characters/player/warrior/move_state.gd" id="8_kgfjb"]
+[ext_resource type="Script" uid="uid://dy4uoa8sngtxr" path="res://scenes/characters/player/warrior/hurt_state.gd" id="9_nkuma"]
+[ext_resource type="Script" uid="uid://rgiymad01fbd" path="res://scenes/characters/player/warrior/idle_state.gd" id="10_hvya8"]
+[ext_resource type="Script" uid="uid://echlin1jyex0" path="res://scripts/game/components/animation/hurt_stagger_animation_component.gd" id="10_kgfjb"]
+[ext_resource type="Script" uid="uid://dppjph4xy4db5" path="res://scripts/game/components/player/collector_component.gd" id="11_collector"]
+[ext_resource type="Script" uid="uid://bmu258uqlhuly" path="res://scenes/characters/player/warrior/death_state.gd" id="12_death_state"]
+[ext_resource type="Script" uid="uid://pnj6ocx250o0" path="res://scripts/game/components/animation/hurt_flash_animation_component.gd" id="13_hurt_flash"]
+[ext_resource type="Script" uid="uid://bstid0r2r8cgw" path="res://scripts/game/components/animation/death_animation_component.gd" id="14_death_anim"]
+[ext_resource type="Script" uid="uid://dlyfprr1rxwtk" path="res://scenes/characters/player/warrior/warrior.gd" id="18_warrior_script"]
+[ext_resource type="Script" uid="uid://cljyqaixbkb4s" path="res://scripts/game/components/player/collection_tracker_component.gd" id="19_collection_tracker"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
+height = 36.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kctm8"]
+height = 36.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_collector"]
+radius = 12.0
+
+[node name="Warrior" type="CharacterBody2D" groups=["Player"]]
+z_index = 1
+position = Vector2(141, 10)
+collision_mask = 0
+script = ExtResource("18_warrior_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 0)
+shape = SubResource("CapsuleShape2D_ufoae")
+
+[node name="CharacterSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1.81899e-12, 2.38419e-07)
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("1_vdkrx")
+flip_h = true
+region_enabled = true
+region_rect = Rect2(32, 32, 32, 32)
+
+[node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("2_kctm8")
+health_component = NodePath("../HealthComponent")
+metadata/_custom_type_script = "uid://c5gmfinumygu4"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+position = Vector2(-2, 0)
+shape = SubResource("CapsuleShape2D_kctm8")
+debug_color = Color(0.993703, 0, 0.233591, 0.42)
+
+[node name="PlayerInputComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_fdlqk")
+metadata/_custom_type_script = "uid://d0o1p6dmhgrbt"
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
+script = ExtResource("5_nkuma")
+character_body = NodePath("..")
+move_speed = 100.0
+metadata/_custom_type_script = "uid://c7bsngihe1vew"
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("6_kgfjb")
+metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
+
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("6_fdlqk")
+sprite = NodePath("../CharacterSprite")
+metadata/_custom_type_script = "uid://850sk6q2ppie"
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("7_nkuma")
+initial_node_state = NodePath("Idle")
+
+[node name="Move" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "wobble_animation", "sprite", "health", "hurtbox", "hurt_flash_animation")]
+script = ExtResource("8_kgfjb")
+movement = NodePath("../../MovementComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
+sprite = NodePath("../../CharacterSprite")
+health = NodePath("../../HealthComponent")
+hurtbox = NodePath("../../HurtboxComponent")
+hurt_flash_animation = NodePath("../../HurtFlashAnimationComponent")
+
+[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation", "hurt_flash_animation")]
+script = ExtResource("9_nkuma")
+hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
+hurt_flash_animation = NodePath("../../HurtFlashAnimationComponent")
+
+[node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("health", "hurtbox", "hurt_flash_animation")]
+script = ExtResource("10_hvya8")
+health = NodePath("../../HealthComponent")
+hurtbox = NodePath("../../HurtboxComponent")
+hurt_flash_animation = NodePath("../../HurtFlashAnimationComponent")
+
+[node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("death_animation", "collision_shapes")]
+script = ExtResource("12_death_state")
+death_animation = NodePath("../../DeathAnimationComponent")
+collision_shapes = [NodePath("../../CollisionShape2D"), NodePath("../../HurtboxComponent/CollisionShape2D")]
+
+[node name="HurtStaggerAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("10_kgfjb")
+sprite = NodePath("../CharacterSprite")
+metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="HurtFlashAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("13_hurt_flash")
+sprite = NodePath("../CharacterSprite")
+
+[node name="DeathAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "body")]
+script = ExtResource("14_death_anim")
+sprite = NodePath("../CharacterSprite")
+body = NodePath("..")
+
+[node name="CollectorComponent" type="Node2D" parent="." node_paths=PackedStringArray("collection_area")]
+script = ExtResource("11_collector")
+collection_area = NodePath("CollectionArea")
+
+[node name="CollectionArea" type="Area2D" parent="CollectorComponent"]
+collision_layer = 128
+collision_mask = 64
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollectorComponent/CollectionArea"]
+position = Vector2(-2, 0)
+shape = SubResource("CircleShape2D_collector")
+debug_color = Color(0.697649, 0.493616, 0, 0.42)
+
+[node name="CollectionTrackerComponent" type="Node" parent="."]
+script = ExtResource("19_collection_tracker")

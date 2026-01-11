@@ -1,11 +1,11 @@
 [gd_scene load_steps=8 format=3 uid="uid://bkmerrmyu553b"]
 
 [ext_resource type="Texture2D" uid="uid://3vcehj1mpljn" path="res://assets/game/objects/pixel_art_sword_slash_sprites.png" id="1_txe8v"]
-[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/hitbox_component.gd" id="2_ni37t"]
-[ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/components/weapon_component.gd" id="3_weapon"]
-[ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/components/directional_weapon_component.gd" id="4_directional"]
-[ext_resource type="Script" uid="uid://crtoouqenyl57" path="res://scripts/game/components/auto_attack_component.gd" id="5_auto_attack"]
-[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/components/skill_modifier_component.gd" id="6_skill_modifier"]
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="2_ni37t"]
+[ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/components/combat/weapon_component.gd" id="3_weapon"]
+[ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/components/combat/directional_weapon_component.gd" id="4_directional"]
+[ext_resource type="Script" uid="uid://crtoouqenyl57" path="res://scripts/game/components/combat/auto_attack_component.gd" id="5_auto_attack"]
+[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/components/combat/skill_modifier_component.gd" id="6_skill_modifier"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1uu3n"]
 size = Vector2(58.25, 44)

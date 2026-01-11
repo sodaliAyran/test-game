@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="SpawnTimeline" load_steps=11 format=3 uid="uid://yy3etpqnip8i"]
+
+[ext_resource type="Script" uid="uid://dnhq8f8m4ognf" path="res://scripts/game/systems/spawn_timeline.gd" id="1_timeline"]
+[ext_resource type="Script" uid="uid://bdjvj3edi3jmg" path="res://scripts/game/systems/spawn_event.gd" id="2_4rxsk"]
+[ext_resource type="Script" uid="uid://csn2eivfpj35j" path="res://scripts/game/systems/continuous_spawn_event.gd" id="2_continuous"]
+[ext_resource type="Script" uid="uid://gredfmxl33to" path="res://scripts/game/systems/burst_spawn_event.gd" id="3_burst"]
+[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="4_skeleton"]
+
+[sub_resource type="Resource" id="ContinuousEvent1"]
+script = ExtResource("2_continuous")
+end_time = 30.0
+enemy_scene = ExtResource("4_skeleton")
+spawn_interval = 2.0
+spawn_count_per_interval = 1
+event_name = "Initial Wave"
+trigger_time = 0.0
+
+[sub_resource type="Resource" id="ContinuousEvent2"]
+script = ExtResource("2_continuous")
+end_time = 60.0
+enemy_scene = ExtResource("4_skeleton")
+spawn_interval = 1.5
+spawn_count_per_interval = 2
+event_name = "Intensify"
+trigger_time = 30.0
+
+[sub_resource type="Resource" id="BurstEvent1"]
+script = ExtResource("3_burst")
+enemy_scene = ExtResource("4_skeleton")
+spawn_count = 10
+spawn_delay = 0.1
+event_name = "First Burst"
+trigger_time = 60.0
+
+[sub_resource type="Resource" id="ContinuousEvent3"]
+script = ExtResource("2_continuous")
+end_time = 90.0
+enemy_scene = ExtResource("4_skeleton")
+spawn_interval = 1.0
+spawn_count_per_interval = 3
+event_name = "Sustained Pressure"
+trigger_time = 65.0
+
+[sub_resource type="Resource" id="BurstEvent2"]
+script = ExtResource("3_burst")
+enemy_scene = ExtResource("4_skeleton")
+spawn_count = 20
+spawn_delay = 0.05
+event_name = "Finale"
+trigger_time = 90.0
+
+[resource]
+script = ExtResource("1_timeline")
+timeline_name = "Example Test Timeline"
+spawn_events = Array[ExtResource("2_4rxsk")]([SubResource("ContinuousEvent1"), SubResource("ContinuousEvent2"), SubResource("BurstEvent1"), SubResource("ContinuousEvent3"), SubResource("BurstEvent2")])
+timeline_duration = 95.0

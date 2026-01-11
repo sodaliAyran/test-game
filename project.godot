@@ -17,10 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SpatialGrid="*res://scripts/game/components/spatial_grid.gd"
+SpatialGrid="*res://scripts/game/components/systems/spatial_grid.gd"
 SkillManager="*res://scripts/game/systems/skill_manager.gd"
 SkillTreeLoader="*res://scripts/game/systems/skill_tree_loader.gd"
 SkillDebugInput="*res://scripts/game/systems/skill_debug_input.gd"
+GameStats="*res://scripts/game/systems/game_stats_manager.gd"
 
 [debug]
 

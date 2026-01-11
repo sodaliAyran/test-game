@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://c2a1xf8af05p6"]
+
+[ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="1_warrior"]
+[ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="2_hud"]
+
+[node name="TestHealthBar" type="Node2D"]
+
+[node name="Warrior" parent="." instance=ExtResource("1_warrior")]
+position = Vector2(320, 240)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 240)
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]

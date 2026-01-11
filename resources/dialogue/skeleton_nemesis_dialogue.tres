@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/systems/dialogue_data.gd" id="1_dialogue"]
+
+[resource]
+script = ExtResource("1_dialogue")
+dialogue_lines = Array[String](["We meet again...", "You won't escape this time!", "Remember me?", "I've been waiting for you!", "This time will be different!"])
+state_key = "skeleton_nemesis"
+metadata = {"emotion": "vengeful", "requires_previous_encounter": true}
+priority = 10

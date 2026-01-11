@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/systems/dialogue_data.gd" id="1_dialogue"]
+
+[resource]
+script = ExtResource("1_dialogue")
+dialogue_lines = Array[String](["I'm outta here!", "Retreat!", "You're too strong!", "Not worth it!", "I value my life!", "Nope nope nope!", "Time to run!", "I give up!", "You win this time!", "Mercy!", "Can't beat you!", "I'm not dying today!"])
+state_key = "coward_flee"
+metadata = {}
+priority = 0

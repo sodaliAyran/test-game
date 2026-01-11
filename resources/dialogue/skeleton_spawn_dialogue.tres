@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/systems/dialogue_data.gd" id="1_dialogue"]
+
+[resource]
+script = ExtResource("1_dialogue")
+dialogue_lines = Array[String](["You dare challenge me?", "I'll crush you!", "Face your doom!", "Your end is near!", "Prepare to die!"])
+state_key = "skeleton_aggressive"
+metadata = {}
+priority = 0

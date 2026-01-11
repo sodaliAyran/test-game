@@ -8,6 +8,7 @@ extends Area2D
 @export_flags_2d_physics var hitbox_collision_mask: int = 32
 
 var damage_multiplier: float = 1.0
+var hit_targets: Array[HurtboxComponent] = []  # Track targets hit in current attack
 
 signal hit(target)
 
@@ -20,6 +21,9 @@ func _ready() -> void:
 	
 func set_active(value: bool) -> void:
 	active = value
+	# Clear hit targets when deactivating (attack ended)
+	if not active:
+		hit_targets.clear()
 
 
 func set_damage_multiplier(multiplier: float) -> void:
@@ -27,10 +31,18 @@ func set_damage_multiplier(multiplier: float) -> void:
 	
 func _on_area_entered(area: Area2D):
 	if not active:
-		print("Hitbox not active")
 		return
 	if area is not HurtboxComponent:
 		return
+	
 	var hurtbox := area as HurtboxComponent
+	
+	# Check if we already hit this target in this attack
+	if hit_targets.has(hurtbox):
+		return
+	
+	# Add to hit targets
+	hit_targets.append(hurtbox)
+	
 	var final_damage = int(base_damage * damage_multiplier)
 	hurtbox.receive_hit(final_damage, knockback)

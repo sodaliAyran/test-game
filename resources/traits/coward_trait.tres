@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CowardTrait" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/traits/coward_trait.gd" id="1_coward"]
+
+[resource]
+script = ExtResource("1_coward")
+trait_name = "Coward"
+priority = 90
+can_execute_parallel = false
+health_threshold = 0.3
+flee_speed_multiplier = 1.5
+flee_duration = 5.0

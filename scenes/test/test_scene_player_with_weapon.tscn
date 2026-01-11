@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=4 uid="uid://chd2pp3g3vpwr"]
 
 [ext_resource type="TileSet" uid="uid://v1w3l2vrsq0q" path="res://tilesets/game_tile_set.tres" id="1_eo8kg"]
-[ext_resource type="PackedScene" uid="uid://bmwfaoo6fr51r" path="res://scenes/characters/weapons/sword.tscn" id="2_661eo"]
-[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier.tscn" id="3_bhwle"]
+[ext_resource type="PackedScene" uid="uid://bmwfaoo6fr51r" path="res://scenes/characters/weapons/sword/sword.tscn" id="2_661eo"]
+[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="3_bhwle"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_661eo"]
 vertices = PackedVector2Array(282.352, 278, 137.281, 278, 122.773, 82, 398, 82, 306.344, 238, 398, 138, 357, 238, 507.859, 178, 622, 178, 622, 326, 522, 302, 522, 326, 405, 302, 467.859, 138)

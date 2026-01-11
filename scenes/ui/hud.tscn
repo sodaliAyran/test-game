@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://bw168syn7gdlu"]
+
+[ext_resource type="Script" uid="uid://blvuuobyrr0m2" path="res://scripts/game/ui/hud_health_bar.gd" id="1_hud_health_bar"]
+[ext_resource type="Script" uid="uid://dkakp71dkmcvu" path="res://scripts/game/ui/hud_counter_component.gd" id="2_hud_counter"]
+
+[sub_resource type="Resource" id="Resource_hqnrr"]
+metadata/__load_path__ = "res://assets/game/ui/icons/skull_icon.png"
+
+[sub_resource type="Resource" id="Resource_bo48s"]
+metadata/__load_path__ = "res://assets/game/ui/icons/coin_icon.png"
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="HealthBar" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -45.0
+offset_right = 100.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_hud_health_bar")
+bar_width = 200.0
+bar_height = 15.0
+
+[node name="CountersContainer" type="HBoxContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -80.0
+offset_top = 10.0
+offset_right = 80.0
+offset_bottom = 40.0
+grow_horizontal = 2
+theme_override_constants/separation = 32
+
+[node name="KillCounter" type="Control" parent="CountersContainer"]
+layout_mode = 2
+script = ExtResource("2_hud_counter")
+icon_texture = SubResource("Resource_hqnrr")
+
+[node name="CoinCounter" type="Control" parent="CountersContainer"]
+layout_mode = 2
+script = ExtResource("2_hud_counter")
+counter_type = "coins"
+icon_texture = SubResource("Resource_bo48s")

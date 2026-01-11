@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=4]
+
+[ext_resource type="Script" path="res://scripts/game/components/ui/health_bar_component.gd" id="1"]
+
+[node name="HealthBar" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 100.0
+offset_bottom = 12.0
+script = ExtResource("1")
+bar_width = 100.0
+bar_height = 12.0
+background_color = Color(0.2, 0.2, 0.2, 0.8)
+health_color = Color(0.2, 0.8, 0.3, 1)
+low_health_color = Color(0.9, 0.2, 0.2, 1)
+low_health_threshold = 0.3
+border_color = Color(0.1, 0.1, 0.1, 1)
+border_width = 2.0
+smooth_transition = true
+transition_speed = 10.0
+damage_flash = true
+flash_duration = 0.2
+offset_above_entity = Vector2(0, -40)
+auto_position = true
+auto_connect = true

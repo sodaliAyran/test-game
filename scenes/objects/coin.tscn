@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cn74jcjtvrdmu"]
 
 [ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_npg62"]
-[ext_resource type="Script" uid="uid://hwl4ehhdj5pi" path="res://scripts/game/components/collectible_component.gd" id="2_collectible"]
+[ext_resource type="Script" uid="uid://hwl4ehhdj5pi" path="res://scripts/game/components/collectibles/collectible_component.gd" id="2_collectible"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_collect"]
 radius = 4.12311
