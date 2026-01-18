@@ -33,31 +33,35 @@ func _ready() -> void:
 	_connect_to_stats()
 
 func _setup_ui() -> void:
-	# Create horizontal container
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", int(spacing))
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	hbox.grow_vertical = Control.GROW_DIRECTION_BOTH
 	add_child(hbox)
-	
-	# Create icon
+
+	# Set minimum size for parent control
+	custom_minimum_size = Vector2(icon_size.x + spacing + 40, icon_size.y)
+
 	icon_rect = TextureRect.new()
 	icon_rect.texture = icon_texture
 	icon_rect.custom_minimum_size = icon_size
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	hbox.add_child(icon_rect)
-	
-	# Create count label
+
 	count_label = Label.new()
 	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	count_label.add_theme_color_override("font_color", text_color)
 	count_label.add_theme_font_size_override("font_size", font_size)
-	# Add shadow for better readability
 	count_label.add_theme_constant_override("shadow_offset_x", 1)
 	count_label.add_theme_constant_override("shadow_offset_y", 1)
 	count_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
 	hbox.add_child(count_label)
-	
+
 	_update_display()
 
 func _connect_to_stats() -> void:

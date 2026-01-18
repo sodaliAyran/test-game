@@ -20,7 +20,6 @@
 [ext_resource type="Script" uid="uid://bcayodtipc5tk" path="res://scripts/game/components/enemy/separation_component.gd" id="17_separation"]
 [ext_resource type="Script" uid="uid://b35kv6kb2iivw" path="res://scripts/game/components/ui/damage_number_component.gd" id="18_damage_number"]
 [ext_resource type="Script" uid="uid://ddick5omjoqrp" path="res://scripts/game/components/animation/fade_animation_component.gd" id="19_fade_anim"]
-[ext_resource type="Script" uid="uid://dmg7rn14v6nv0" path="res://scripts/game/components/collectibles/drop_component.gd" id="20_drop"]
 [ext_resource type="PackedScene" uid="uid://cn74jcjtvrdmu" path="res://scenes/objects/coin.tscn" id="21_coin"]
 [ext_resource type="Script" uid="uid://5xngd2y3x7h" path="res://scripts/game/components/enemy/enemy_damage_component.gd" id="22_enemy_damage"]
 [ext_resource type="Script" uid="uid://duisvww7b2r3b" path="res://scripts/game/components/ui/text_bubble_component.gd" id="22_text_bubble"]
@@ -29,6 +28,7 @@
 [ext_resource type="Script" uid="uid://cxxxuga54xuom" path="res://scripts/game/components/systems/nemesis_component.gd" id="25_nemesis"]
 [ext_resource type="Resource" path="res://resources/traits/coward_trait.tres" id="26_coward"]
 [ext_resource type="Script" uid="uid://b5tpjb2kqlkgj" path="res://scripts/game/systems/nemesis_trait_data.gd" id="28_lwnh4"]
+[ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="30_b28m2"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -126,15 +126,16 @@ script = ExtResource("10_df3bm")
 agent = NodePath("../NavigationAgent2D")
 metadata/_custom_type_script = "uid://dphatmavxn3u8"
 
-[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox")]
 script = ExtResource("11_vdd08")
 character_body = NodePath("..")
+hurtbox = NodePath("../Sprite2D/HurtboxComponent")
 move_speed = 25.0
 metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_fof2v")
-max_health = 15
+max_health = 200
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
 [node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
@@ -168,13 +169,7 @@ hurtbox_component = NodePath("../Sprite2D/HurtboxComponent")
 fade_animation_component = NodePath("../FadeAnimationComponent")
 font_size = 12
 
-[node name="DropComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
-script = ExtResource("20_drop")
-health_component = NodePath("../HealthComponent")
-drop_scene = ExtResource("21_coin")
-drop_chance = 0.7
-max_drops = 2
-spread_radius = 25.0
+[node name="DeathDropComponent" type="Node" parent="."]
 
 [node name="EnemyDamageComponent" type="Node2D" parent="."]
 script = ExtResource("22_enemy_damage")
@@ -194,3 +189,9 @@ script = ExtResource("24_kill_tracker")
 [node name="NemesisComponent" type="Node" parent="."]
 script = ExtResource("25_nemesis")
 traits = Array[ExtResource("28_lwnh4")]([ExtResource("26_coward")])
+
+[node name="HitDropComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
+script = ExtResource("30_b28m2")
+health_component = NodePath("../HealthComponent")
+drop_scene = ExtResource("21_coin")
+max_drops = 3

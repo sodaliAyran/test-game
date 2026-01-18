@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dj3ftqqhuu0c6"]
+[gd_scene load_steps=22 format=3 uid="uid://dj3ftqqhuu0c6"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_kctm8"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" uid="uid://bstid0r2r8cgw" path="res://scripts/game/components/animation/death_animation_component.gd" id="14_death_anim"]
 [ext_resource type="Script" uid="uid://dlyfprr1rxwtk" path="res://scenes/characters/player/warrior/warrior.gd" id="18_warrior_script"]
 [ext_resource type="Script" uid="uid://cljyqaixbkb4s" path="res://scripts/game/components/player/collection_tracker_component.gd" id="19_collection_tracker"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="20_facing"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
 height = 36.0
@@ -78,15 +79,19 @@ script = ExtResource("6_fdlqk")
 sprite = NodePath("../CharacterSprite")
 metadata/_custom_type_script = "uid://850sk6q2ppie"
 
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("20_facing")
+sprite = NodePath("../CharacterSprite")
+
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("7_nkuma")
 initial_node_state = NodePath("Idle")
 
-[node name="Move" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "wobble_animation", "sprite", "health", "hurtbox", "hurt_flash_animation")]
+[node name="Move" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "wobble_animation", "facing", "health", "hurtbox", "hurt_flash_animation")]
 script = ExtResource("8_kgfjb")
 movement = NodePath("../../MovementComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
-sprite = NodePath("../../CharacterSprite")
+facing = NodePath("../../FacingComponent")
 health = NodePath("../../HealthComponent")
 hurtbox = NodePath("../../HurtboxComponent")
 hurt_flash_animation = NodePath("../../HurtFlashAnimationComponent")

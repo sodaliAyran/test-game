@@ -43,6 +43,7 @@ region_rect = Rect2(0, 32, 64, 64)
 
 [node name="HitboxComponent" type="Area2D" parent="."]
 script = ExtResource("2_ni37t")
+knockback = 500.0
 active = true
 metadata/_custom_type_script = "uid://cgv0h7in1cq8x"
 

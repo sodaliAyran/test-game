@@ -28,21 +28,31 @@ func set_active(value: bool) -> void:
 
 func set_damage_multiplier(multiplier: float) -> void:
 	damage_multiplier = multiplier
-	
+
+
+func _get_attacker_position() -> Vector2:
+	var node = get_parent()
+	while node:
+		if node is CharacterBody2D:
+			return node.global_position
+		node = node.get_parent()
+	return global_position
+
+
 func _on_area_entered(area: Area2D):
 	if not active:
 		return
 	if area is not HurtboxComponent:
 		return
-	
+
 	var hurtbox := area as HurtboxComponent
-	
+
 	# Check if we already hit this target in this attack
 	if hit_targets.has(hurtbox):
 		return
-	
+
 	# Add to hit targets
 	hit_targets.append(hurtbox)
-	
+
 	var final_damage = int(base_damage * damage_multiplier)
-	hurtbox.receive_hit(final_damage, knockback)
+	hurtbox.receive_hit(final_damage, knockback, _get_attacker_position())

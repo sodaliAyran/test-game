@@ -3,11 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cryi1vowjjj0o"
-valid=false
+path="res://.godot/imported/skull_icon.png-aa7f0ffd0a42dd13f7bcbad67781d28a.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/game/ui/icons/skull_icon.png"
+dest_files=["res://.godot/imported/skull_icon.png-aa7f0ffd0a42dd13f7bcbad67781d28a.ctex"]
 
 [params]
 
@@ -27,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

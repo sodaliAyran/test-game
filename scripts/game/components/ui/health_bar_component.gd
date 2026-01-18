@@ -149,4 +149,3 @@ func _update_position() -> void:
 	# Center the health bar horizontally above the parent
 	var bar_offset = Vector2(-bar_width / 2, offset_above_entity.y)
 	position = bar_offset
-

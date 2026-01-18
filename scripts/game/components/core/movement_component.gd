@@ -2,13 +2,23 @@ class_name MovementComponent
 extends Node
 
 @export var character_body: CharacterBody2D
+@export var hurtbox: HurtboxComponent
 @export var move_speed: float = 300.0
 @export var drag: float = 10.0
-@export var knockback_decay: float = 5.0
+@export var knockback_decay: float = 10.0
 
 var velocity: Vector2 = Vector2.ZERO
 var knockback_velocity: Vector2 = Vector2.ZERO
 var speed_multiplier: float = 1.0  # For temporary speed boosts
+
+
+func _ready() -> void:
+	if hurtbox:
+		hurtbox.knocked.connect(_on_knocked)
+
+
+func _on_knocked(direction: Vector2, force: float) -> void:
+	apply_knockback(direction * force)
 
 
 func _physics_process(delta: float) -> void:
@@ -20,7 +30,7 @@ func _physics_process(delta: float) -> void:
 	character_body.move_and_slide()
 	
 	velocity = _decay_velocity(velocity, drag, delta)
-	knockback_velocity = _decay_velocity(knockback_velocity, knockback_decay, delta)
+	knockback_velocity = knockback_velocity * exp(-knockback_decay * delta)
 	
 
 func _decay_velocity(v: Vector2, decay: float, delta: float) -> Vector2:

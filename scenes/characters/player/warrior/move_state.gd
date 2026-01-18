@@ -2,7 +2,7 @@ extends  NodeState
 
 @export var movement: MovementComponent
 @export var wobble_animation: WobbleAnimationComponent
-@export var sprite: Sprite2D
+@export var facing: FacingComponent
 @export var health: HealthComponent
 @export var hurtbox: HurtboxComponent
 @export var hurt_flash_animation: HurtFlashAnimationComponent
@@ -11,13 +11,11 @@ extends  NodeState
 func _on_process(delta : float) -> void:
 	var direction = player_input.movement_direction
 	movement.set_velocity(direction)
-	
-	# Flip sprite based on horizontal movement
-	if direction.x > 0:
-		sprite.flip_h = true
-	elif direction.x < 0:
-		sprite.flip_h = false
-	
+
+	# Update facing direction (handles sprite flipping internally)
+	if facing:
+		facing.set_facing_from_direction(direction)
+
 	if wobble_animation and direction != Vector2.ZERO:
 		wobble_animation.play(delta, direction, Vector2.ZERO)
 

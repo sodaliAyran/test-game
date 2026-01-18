@@ -1,5 +1,8 @@
-class_name DropComponent
+class_name DeathDropComponent
 extends Node
+
+## Drops items when the attached entity dies.
+## Connect to a HealthComponent's died signal.
 
 @export var health_component: HealthComponent
 @export var drop_scene: PackedScene  # Scene to drop (e.g., coin)

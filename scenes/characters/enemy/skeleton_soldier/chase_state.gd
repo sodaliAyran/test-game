@@ -20,7 +20,7 @@ func _on_process(delta : float) -> void:
 		transition.emit("Hurt")
 	if not movement or not pathfinding:
 		return
-	
+
 	if target:
 		pathfinding.set_target_position_throttled(target.global_position)
 	
@@ -103,3 +103,4 @@ func _on_target_lost(lost_target):
 func _disconnect_sense() -> void:
 	if sense and sense.is_connected("target_lost", _on_target_lost):
 		sense.disconnect("target_lost", Callable(self, "_on_target_lost"))
+	

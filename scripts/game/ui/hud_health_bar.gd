@@ -20,6 +20,16 @@ extends Control
 @export var text_color: Color = Color(1.0, 1.0, 1.0, 1.0)
 @export var font_size: int = 16
 
+@export_group("Boss Name")
+@export var show_name: bool = false
+@export var boss_name: String = ""
+@export var name_color: Color = Color(0.9, 0.85, 0.75, 1.0)
+@export var name_font_size: int = 12
+@export var name_offset: float = 4.0
+
+@export_group("Positioning")
+@export var bottom_margin: float = 30.0
+
 @export_group("Animation")
 @export var smooth_transition: bool = true
 @export var transition_speed: float = 10.0
@@ -42,6 +52,7 @@ var background_rect: ColorRect
 var health_rect: ColorRect
 var border_panel: Panel
 var health_label: Label
+var name_label: Label
 
 func _ready() -> void:
 	# Auto-adjust offsets to center the bar
@@ -58,8 +69,8 @@ func _adjust_centering() -> void:
 	# This ensures the bar is always centered regardless of width/height changes
 	offset_left = -bar_width / 2
 	offset_right = bar_width / 2
-	offset_top = -(bar_height + 30)  # 30 pixels from bottom
-	offset_bottom = -30
+	offset_top = -(bar_height + bottom_margin)
+	offset_bottom = -bottom_margin
 
 func _setup_ui() -> void:
 	# Calculate border width as a ratio of height (looks good at any size)
@@ -119,6 +130,22 @@ func _setup_ui() -> void:
 		add_child(health_label)
 		_update_text()
 
+	# Create boss name label above the bar
+	if show_name and boss_name != "":
+		name_label = Label.new()
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		name_label.position = Vector2(0, -(name_font_size + name_offset + border_width))
+		name_label.size = Vector2(bar_width, name_font_size + 4)
+		name_label.text = boss_name
+		name_label.add_theme_color_override("font_color", name_color)
+		name_label.add_theme_font_size_override("font_size", name_font_size)
+		# Add shadow for readability
+		name_label.add_theme_constant_override("shadow_offset_x", 1)
+		name_label.add_theme_constant_override("shadow_offset_y", 1)
+		name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+		add_child(name_label)
+
 func _process(delta: float) -> void:
 	if smooth_transition:
 		# Smoothly interpolate to target health ratio
@@ -162,6 +189,27 @@ func update_health(new_current: float, new_max: float) -> void:
 func _update_text() -> void:
 	if health_label:
 		health_label.text = "%d / %d" % [int(current_health), int(max_health)]
+
+func set_boss_name(new_name: String) -> void:
+	boss_name = new_name
+	if name_label:
+		name_label.text = new_name
+		name_label.visible = new_name != ""
+	elif new_name != "":
+		# Create label if it doesn't exist
+		show_name = true
+		name_label = Label.new()
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		name_label.position = Vector2(0, -(name_font_size + name_offset + border_width))
+		name_label.size = Vector2(bar_width, name_font_size + 4)
+		name_label.text = new_name
+		name_label.add_theme_color_override("font_color", name_color)
+		name_label.add_theme_font_size_override("font_size", name_font_size)
+		name_label.add_theme_constant_override("shadow_offset_x", 1)
+		name_label.add_theme_constant_override("shadow_offset_y", 1)
+		name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+		add_child(name_label)
 
 func connect_to_health_component(health_component: HealthComponent) -> void:
 	if health_component:

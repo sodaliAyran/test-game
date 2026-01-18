@@ -30,7 +30,7 @@ Entities (players, enemies) are composed from reusable component nodes rather th
 - **combat/** - `WeaponComponent`, `DirectionalWeaponComponent`, `AutoAttackComponent`, `SkillModifierComponent`
 - **animation/** - `AnimationComponent` (base), `HurtFlashAnimationComponent`, `SpawnAnimationComponent`, `DeathAnimationComponent`, etc.
 - **ui/** - `HealthBarComponent`, `TextBubbleComponent`, `DamageNumberComponent`
-- **collectibles/** - `CollectibleComponent`, `DropComponent`
+- **collectibles/** - `CollectibleComponent`, `DeathDropComponent`, `HitDropComponent`
 - **spawning/** - `TimelineSpawner`, `WaveSpawner`
 - **systems/** - `SpatialGrid`, `NemesisComponent`, `KillTrackerComponent`
 

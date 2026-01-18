@@ -1,13 +1,26 @@
-[gd_scene load_steps=5 format=3 uid="uid://bw168syn7gdlu"]
+[gd_scene load_steps=7 format=3 uid="uid://bw168syn7gdlu"]
 
 [ext_resource type="Script" uid="uid://blvuuobyrr0m2" path="res://scripts/game/ui/hud_health_bar.gd" id="1_hud_health_bar"]
 [ext_resource type="Script" uid="uid://dkakp71dkmcvu" path="res://scripts/game/ui/hud_counter_component.gd" id="2_hud_counter"]
+[ext_resource type="Texture2D" uid="uid://cryi1vowjjj0o" path="res://assets/game/ui/icons/skull_icon.png" id="3_skull_icon"]
+[ext_resource type="Texture2D" uid="uid://bmbewbjfc7to1" path="res://assets/game/ui/icons/coin_icon.png" id="4_coin_icon"]
+[ext_resource type="Script" uid="uid://cuxngiwma067k" path="res://scripts/game/ui/hud_xp_bar.gd" id="5_hud_xp_bar"]
 
-[sub_resource type="Resource" id="Resource_hqnrr"]
-metadata/__load_path__ = "res://assets/game/ui/icons/skull_icon.png"
-
-[sub_resource type="Resource" id="Resource_bo48s"]
-metadata/__load_path__ = "res://assets/game/ui/icons/coin_icon.png"
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_panel"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.1, 0.12, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="HUD" type="CanvasLayer"]
 
@@ -18,34 +31,72 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -100.0
-offset_top = -45.0
-offset_right = 100.0
-offset_bottom = -30.0
+offset_left = -150.0
+offset_top = -16.0
+offset_right = 150.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("1_hud_health_bar")
-bar_width = 200.0
-bar_height = 15.0
+bar_height = 8.0
+background_color = Color(0.08, 0.06, 0.06, 0.95)
+health_color = Color(0.7, 0.12, 0.1, 1)
+low_health_color = Color(0.5, 0.08, 0.06, 1)
+low_health_threshold = 0.25
+border_color = Color(0.02, 0.02, 0.02, 1)
+show_text = false
+show_name = true
+boss_name = "Warrior"
+name_font_size = 10
+name_offset = 2.0
+bottom_margin = 8.0
+transition_speed = 8.0
+flash_duration = 0.15
 
-[node name="CountersContainer" type="HBoxContainer" parent="."]
+[node name="XPBar" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -7.0
+offset_right = 150.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("5_hud_xp_bar")
+xp_color = Color(0.2, 0.5, 0.95, 1)
+show_level = false
+
+[node name="StatsPanel" type="PanelContainer" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -80.0
+offset_left = -100.0
 offset_top = 10.0
-offset_right = 80.0
-offset_bottom = 40.0
+offset_right = 100.0
+offset_bottom = 50.0
 grow_horizontal = 2
-theme_override_constants/separation = 32
+theme_override_styles/panel = SubResource("StyleBoxFlat_stats_panel")
 
-[node name="KillCounter" type="Control" parent="CountersContainer"]
+[node name="CountersContainer" type="HBoxContainer" parent="StatsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="KillCounter" type="Control" parent="StatsPanel/CountersContainer"]
 layout_mode = 2
 script = ExtResource("2_hud_counter")
-icon_texture = SubResource("Resource_hqnrr")
+icon_texture = ExtResource("3_skull_icon")
+icon_size = Vector2(20, 20)
+font_size = 18
 
-[node name="CoinCounter" type="Control" parent="CountersContainer"]
+[node name="CoinCounter" type="Control" parent="StatsPanel/CountersContainer"]
 layout_mode = 2
 script = ExtResource("2_hud_counter")
 counter_type = "coins"
-icon_texture = SubResource("Resource_bo48s")
+icon_texture = ExtResource("4_coin_icon")
+icon_size = Vector2(20, 20)
+font_size = 18
