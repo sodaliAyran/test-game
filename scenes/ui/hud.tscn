@@ -71,6 +71,7 @@ xp_color = Color(0.2, 0.5, 0.95, 1)
 show_level = false
 
 [node name="StatsPanel" type="PanelContainer" parent="."]
+visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://dlo1nlqynryso"]
+[gd_scene load_steps=34 format=3 uid="uid://dlo1nlqynryso"]
 
 [ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_lklkc"]
@@ -6,7 +6,9 @@
 [ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="4_ifebp"]
 [ext_resource type="Script" uid="uid://dn8j86oahck5w" path="res://scenes/characters/enemy/skeleton_soldier/spawn_state.gd" id="4_spawn"]
 [ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/skeleton_soldier/idle_state.gd" id="5_1mn2y"]
-[ext_resource type="Script" uid="uid://y1xtoh3og51s" path="res://scenes/characters/enemy/skeleton_soldier/hurt_state.gd" id="6_61nds"]
+[ext_resource type="Script" uid="uid://bkalfexdm6mfi" path="res://scripts/game/states/enemy/hurt_state.gd" id="6_61nds"]
+[ext_resource type="Script" uid="uid://0nia7tc4g617" path="res://scripts/game/states/enemy/down_state.gd" id="6_down"]
+[ext_resource type="Script" uid="uid://ba75h6leyutgo" path="res://scripts/game/components/animation/down_animation_component.gd" id="6_down_anim"]
 [ext_resource type="Script" uid="uid://bqgniqxnc4snp" path="res://scenes/characters/enemy/skeleton_soldier/chase_state.gd" id="7_1mn2y"]
 [ext_resource type="Script" uid="uid://csnsynjeksolq" path="res://scenes/characters/enemy/skeleton_soldier/flee_state.gd" id="7_flee"]
 [ext_resource type="Script" uid="uid://cu8mashyovlri" path="res://scenes/characters/enemy/skeleton_soldier/death_state.gd" id="7_igrhf"]
@@ -80,9 +82,16 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 sense = NodePath("../../EnemySenseComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation")]
+[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation", "hurtbox")]
 script = ExtResource("6_61nds")
 hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+
+[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health")]
+script = ExtResource("6_down")
+down_animation = NodePath("../../DownAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation")]
 script = ExtResource("7_1mn2y")
@@ -156,6 +165,10 @@ spawn_duration = 2.0
 script = ExtResource("16_cuj74")
 sprite = NodePath("../Sprite2D")
 metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="DownAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("6_down_anim")
+sprite = NodePath("../Sprite2D")
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("17_separation")

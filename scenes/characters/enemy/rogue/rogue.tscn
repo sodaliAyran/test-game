@@ -1,10 +1,12 @@
-[gd_scene load_steps=32 format=3 uid="uid://f2ivkfoof281"]
+[gd_scene load_steps=34 format=3 uid="uid://f2ivkfoof281"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
 [ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="3_ftcjs"]
 [ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/skeleton_soldier/idle_state.gd" id="4_qvi1n"]
-[ext_resource type="Script" uid="uid://y1xtoh3og51s" path="res://scenes/characters/enemy/skeleton_soldier/hurt_state.gd" id="5_4ayy1"]
+[ext_resource type="Script" uid="uid://bkalfexdm6mfi" path="res://scripts/game/states/enemy/hurt_state.gd" id="5_4ayy1"]
+[ext_resource type="Script" uid="uid://0nia7tc4g617" path="res://scripts/game/states/enemy/down_state.gd" id="5_down"]
+[ext_resource type="Script" uid="uid://ba75h6leyutgo" path="res://scripts/game/components/animation/down_animation_component.gd" id="5_down_anim"]
 [ext_resource type="Script" uid="uid://csnsynjeksolq" path="res://scenes/characters/enemy/skeleton_soldier/flee_state.gd" id="7_qalk0"]
 [ext_resource type="Script" uid="uid://cu8mashyovlri" path="res://scenes/characters/enemy/skeleton_soldier/death_state.gd" id="8_tkq6p"]
 [ext_resource type="Script" uid="uid://blt8qxujohwor" path="res://scripts/game/components/enemy/enemy_sense_component.gd" id="9_u7k36"]
@@ -30,11 +32,12 @@
 [ext_resource type="Script" uid="uid://ds6u6cfpglpkp" path="res://scenes/characters/enemy/rogue/dash_state.gd" id="30_dash_state"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
-radius = 11.0
-height = 36.0
+radius = 7.0
+height = 24.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ap80"]
-radius = 8.39344
+radius = 6.13303
+height = 22.9611
 
 [sub_resource type="GDScript" id="GDScript_vh0fs"]
 script/source = "extends NodeState
@@ -193,7 +196,7 @@ health_component = NodePath("../../HealthComponent")
 metadata/_custom_type_script = "uid://c5gmfinumygu4"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/HurtboxComponent"]
-position = Vector2(-1, 1)
+position = Vector2(-1, 0)
 scale = Vector2(1.14136, 1.13235)
 shape = SubResource("CapsuleShape2D_0ap80")
 debug_color = Color(0.931449, 0.24244, 0.260464, 0.42)
@@ -208,9 +211,16 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 sense = NodePath("../../EnemySenseComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation")]
+[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation", "hurtbox")]
 script = ExtResource("5_4ayy1")
 hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+
+[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health")]
+script = ExtResource("5_down")
+down_animation = NodePath("../../DownAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "dash")]
 script = SubResource("GDScript_vh0fs")
@@ -288,6 +298,10 @@ body = NodePath("..")
 script = ExtResource("15_mxi1o")
 sprite = NodePath("../Sprite2D")
 metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="DownAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("5_down_anim")
+sprite = NodePath("../Sprite2D")
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("16_7ptgb")

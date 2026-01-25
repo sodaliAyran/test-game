@@ -67,7 +67,7 @@ metadata/_custom_type_script = "uid://d0o1p6dmhgrbt"
 [node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
 script = ExtResource("5_nkuma")
 character_body = NodePath("..")
-move_speed = 100.0
+move_speed = 35.0
 metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
@@ -136,6 +136,7 @@ collision_mask = 64
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollectorComponent/CollectionArea"]
 position = Vector2(-2, 0)
+scale = Vector2(0.866634, 0.690976)
 shape = SubResource("CircleShape2D_collector")
 debug_color = Color(0.697649, 0.493616, 0, 0.42)
 
