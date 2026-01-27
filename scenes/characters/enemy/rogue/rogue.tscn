@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://f2ivkfoof281"]
+[gd_scene load_steps=37 format=3 uid="uid://f2ivkfoof281"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
@@ -32,6 +32,7 @@
 [ext_resource type="Script" uid="uid://ds6u6cfpglpkp" path="res://scenes/characters/enemy/rogue/dash_state.gd" id="30_dash_state"]
 [ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="31_slot_seeker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
+[ext_resource type="Script" uid="uid://blyx375gdxrxj" path="res://scripts/game/components/combat/combat_director_request_component.gd" id="33_director_req"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 7.0
@@ -58,8 +59,8 @@ script/source = "extends NodeState
 @export_range(0.0, 1.0) var separation_weight: float = 0.3
 
 @export_group(\"Dash Gap Closer\")
-@export var min_dash_distance: float = 75.0
-@export var max_dash_distance: float = 200.0
+@export var min_dash_distance: float = 0.0
+@export var max_dash_distance: float = 400.0
 
 var got_hurt: bool = false
 var target: Node2D = null
@@ -84,12 +85,16 @@ func _on_process(delta : float) -> void:
 
 	pathfinding.set_target_position_throttled(chase_target_pos)
 
+	# Check if we should request a dash attack
 	if target and dash and dash.can_dash():
 		var distance = owner.global_position.distance_to(chase_target_pos)
 		if distance >= min_dash_distance and distance <= max_dash_distance:
-			_trigger_dash(chase_target_pos)
-			return
-	
+			var dash_direction = (chase_target_pos - owner.global_position).normalized()
+			if dash.request_dash(dash_direction):
+				# Dash was requested (or executed if no AP needed)
+				# The dash state transition will happen via signal
+				return
+
 	# Get pathfinding direction
 	var path_direction = pathfinding.get_target_direction()
 	
@@ -124,6 +129,7 @@ func _on_enter() -> void:
 	target = sense.current_target
 	_connect_hurtbox()
 	_connect_health()
+	_connect_dash()
 
 	# Request a slot around the target
 	if slot_seeker and target and slot_seeker.has_method(\"request_slot_for_target\"):
@@ -136,6 +142,7 @@ func _on_exit() -> void:
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
+	_disconnect_dash()
 
 	# Release slot when leaving chase state
 	if slot_seeker and slot_seeker.has_method(\"release_current_slot\"):
@@ -178,15 +185,20 @@ func _disconnect_sense() -> void:
 	if sense and sense.is_connected(\"target_lost\", _on_target_lost):
 		sense.disconnect(\"target_lost\", Callable(self, \"_on_target_lost\"))
 
+func _connect_dash() -> void:
+	if dash and not dash.dash_started.is_connected(_on_dash_started):
+		dash.dash_started.connect(_on_dash_started)
 
-func _trigger_dash(target_pos: Vector2) -> void:
-	if not target:
-		return
-	var dash_direction = (target_pos - owner.global_position).normalized()
-	var dash_state = get_parent().get_node_or_null(\"Dash\")
-	if dash_state and dash_state.has_method(\"set_dash_direction\"):
-		dash_state.set_dash_direction(dash_direction)
+func _on_dash_started(_direction: Vector2) -> void:
+	# Transition to Dash state when dash begins
 	transition.emit(\"Dash\")
+
+func _disconnect_dash() -> void:
+	if dash:
+		if dash.dash_started.is_connected(_on_dash_started):
+			dash.dash_started.disconnect(_on_dash_started)
+		# Cancel any pending dash request on cleanup
+		dash.cancel_pending_request()
 "
 
 [node name="Rogue" type="CharacterBody2D"]
@@ -364,11 +376,16 @@ health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("20_yi8sa")
 max_drops = 3
 
-[node name="DashComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox", "movement")]
+[node name="CombatDirectorRequestComponent" type="Node" parent="."]
+script = ExtResource("33_director_req")
+default_priority = 60
+
+[node name="DashComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox", "movement", "director_request")]
 script = ExtResource("29_dash")
 character_body = NodePath("..")
 hurtbox = NodePath("../Sprite2D/HurtboxComponent")
 movement = NodePath("../MovementComponent")
+director_request = NodePath("../CombatDirectorRequestComponent")
 dash_speed = 400.0
 dash_duration = 0.25
 cooldown = 3.0

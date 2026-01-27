@@ -13,17 +13,6 @@ signal attack_denied(enemy: Node2D, reason: String)
 @export var ap_refill_rate: float = 2.0  # AP per second
 @export var initial_ap: float = 5.0
 
-# Action Costs - can be extended as needed
-const ACTION_COSTS = {
-	"basic_melee": 1.0,
-	"heavy_melee": 2.0,
-	"dash_attack": 2.5,
-	"special_attack": 3.0,
-	"ranged_attack": 1.5,
-	"ultimate": 5.0,
-	"recovery": 4.0,  # For reviving downed heroes
-}
-
 # Concurrency Limits
 @export var max_concurrent_attacks: int = 3
 @export var max_concurrent_specials: int = 1
@@ -31,7 +20,7 @@ const ACTION_COSTS = {
 # State
 var current_ap: float = 0.0
 var _pending_requests: Array[APRequest] = []
-var _active_attacks: Dictionary = {}  # enemy instance_id -> action_type
+var _active_attacks: Dictionary = {}  # enemy instance_id -> {action_type: String, cost: float}
 var _active_special_count: int = 0
 
 
@@ -88,11 +77,10 @@ func complete_attack(enemy: Node2D) -> void:
 
 	var enemy_id = enemy.get_instance_id()
 	if _active_attacks.has(enemy_id):
-		var action_type = _active_attacks[enemy_id]
-		var cost = get_action_cost(action_type)
+		var action_data = _active_attacks[enemy_id]
 
 		# Decrement special count if it was a special attack
-		if cost >= 3.0:
+		if action_data.cost >= 3.0:
 			_active_special_count = max(0, _active_special_count - 1)
 
 		_active_attacks.erase(enemy_id)
@@ -106,16 +94,6 @@ func get_current_ap() -> float:
 ## Get max AP capacity
 func get_max_ap() -> float:
 	return max_ap
-
-
-## Get action cost by type
-static func get_action_cost(action_type: String) -> float:
-	return ACTION_COSTS.get(action_type, 1.0)
-
-
-## Check if an action type is considered "special" (high cost)
-static func is_special_action(action_type: String) -> bool:
-	return get_action_cost(action_type) >= 3.0
 
 
 ## Scale capacity and refill rate (for difficulty progression)
@@ -193,8 +171,11 @@ func _approve_request(request: APRequest) -> void:
 	current_ap -= cost
 	ap_changed.emit(current_ap, max_ap)
 
-	# Track active attack
-	_active_attacks[enemy_id] = request.action_type
+	# Track active attack with cost
+	_active_attacks[enemy_id] = {
+		"action_type": request.action_type,
+		"cost": cost
+	}
 
 	# Track special count
 	if request.is_special():
