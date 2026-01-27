@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c8dash1skill1"]
 
-[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/components/combat/skill_modifier_component.gd" id="1_skill_modifier"]
+[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/skills/modifiers/skill_modifier_component.gd" id="1_skill_modifier"]
 [ext_resource type="Script" path="res://scripts/game/components/combat/dash_component.gd" id="2_dash"]
 
 [node name="Dash" type="Node2D"]

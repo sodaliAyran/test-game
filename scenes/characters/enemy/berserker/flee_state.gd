@@ -9,7 +9,7 @@ extends NodeState
 @export var separation: SeparationComponent
 @export var hurtbox: HurtboxComponent
 @export var health: HealthComponent
-@export var sprite: Sprite2D
+@export var facing: FacingComponent
 @export var wobble_animation: WobbleAnimationComponent
 
 var flee_direction: Vector2 = Vector2.ZERO
@@ -45,9 +45,9 @@ func _on_physics_process(_delta: float) -> void:
 		var to_player = (sense.current_target.global_position - owner.global_position).normalized()
 		flee_direction = -to_player
 
-	# Flip sprite based on flee direction
-	if sprite and flee_direction.x != 0:
-		sprite.flip_h = flee_direction.x > 0
+	# Update facing direction
+	if facing:
+		facing.set_facing_from_direction(flee_direction)
 
 	# Move away from player
 	var desired_velocity = flee_direction * movement.move_speed

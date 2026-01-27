@@ -7,6 +7,7 @@ extends NodeState
 @export var health: HealthComponent
 @export var wobble_animation: WobbleAnimationComponent
 @export var separation: SeparationComponent
+@export var slot_seeker: Node  # SlotSeekerComponent
 
 @export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
 @export_range(0.0, 1.0) var separation_weight: float = 0.3
@@ -21,9 +22,17 @@ func _on_process(delta : float) -> void:
 	if not movement or not pathfinding:
 		return
 
-	if target:
-		pathfinding.set_target_position_throttled(target.global_position)
-	
+	# Use slot position if available, otherwise direct chase
+	var chase_target_pos: Vector2
+	if slot_seeker and slot_seeker.has_method("get_target_position"):
+		chase_target_pos = slot_seeker.get_target_position()
+	elif target:
+		chase_target_pos = target.global_position
+	else:
+		chase_target_pos = owner.global_position
+
+	pathfinding.set_target_position_throttled(chase_target_pos)
+
 	# Get pathfinding direction
 	var path_direction = pathfinding.get_target_direction()
 	
@@ -59,6 +68,10 @@ func _on_enter() -> void:
 	_connect_hurtbox()
 	_connect_health()
 
+	# Request a slot around the target
+	if slot_seeker and target and slot_seeker.has_method("request_slot_for_target"):
+		slot_seeker.request_slot_for_target(target)
+
 func _on_exit() -> void:
 	movement.set_velocity(Vector2.ZERO)
 	if wobble_animation:
@@ -66,6 +79,10 @@ func _on_exit() -> void:
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
+
+	# Release slot when leaving chase state
+	if slot_seeker and slot_seeker.has_method("release_current_slot"):
+		slot_seeker.release_current_slot()
 
 
 func _connect_hurtbox() -> void:

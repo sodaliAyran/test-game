@@ -29,6 +29,8 @@
 [ext_resource type="Script" uid="uid://b5tpjb2kqlkgj" path="res://scripts/game/systems/nemesis_trait_data.gd" id="26_jlfxf"]
 [ext_resource type="Resource" path="res://resources/traits/coward_trait.tres" id="27_ckuw0"]
 [ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="28_ip5rs"]
+[ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="29_slot_seeker"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="30_facing"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -87,7 +89,7 @@ down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation")]
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = ExtResource("6_e6f12")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -96,8 +98,9 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 separation = NodePath("../../SeparationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
 
-[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "sprite", "wobble_animation")]
+[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
 script = ExtResource("7_ygbvs")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -105,7 +108,7 @@ sense = NodePath("../../EnemySenseComponent")
 separation = NodePath("../../SeparationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
-sprite = NodePath("../../Sprite2D")
+facing = NodePath("../../FacingComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 
 [node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("collision_shapes", "death_animation")]
@@ -141,9 +144,10 @@ script = ExtResource("12_wqvmn")
 max_health = 1000
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
-[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
 script = ExtResource("13_msr0g")
 sprite = NodePath("../Sprite2D")
+facing = NodePath("../FacingComponent")
 
 [node name="DeathAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "body")]
 script = ExtResource("14_sh4l0")
@@ -162,6 +166,9 @@ down_duration = 3.0
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("16_11rik")
+
+[node name="SlotSeekerComponent" type="Node" parent="."]
+script = ExtResource("29_slot_seeker")
 
 [node name="FadeAnimationComponent" type="Node" parent="."]
 script = ExtResource("17_77hyl")
@@ -196,3 +203,7 @@ script = ExtResource("28_ip5rs")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("20_hepg3")
 max_drops = 3
+
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("30_facing")
+sprite = NodePath("../Sprite2D")

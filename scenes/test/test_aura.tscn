@@ -2,7 +2,7 @@
 
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="1_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="2_m4tr5"]
-[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/weapons/sword/sword.tscn" id="3_2noyv"]
+[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="3_2noyv"]
 [ext_resource type="PackedScene" uid="uid://f2ivkfoof281" path="res://scenes/characters/enemy/rogue/rogue.tscn" id="5_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://ca2bfq1gm3nxc" path="res://scenes/characters/enemy/berserker/berserker.tscn" id="6_m4tr5"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="6_qov67"]

@@ -7,17 +7,26 @@ extends Node
 signal facing_changed(new_direction: Vector2)
 
 @export var sprite: Sprite2D
+@export var use_full_direction: bool = true ## If true, stores full direction vector (8-way). If false, horizontal only.
 
-## The direction the character is currently facing (normalized, horizontal only)
+## The direction the character is currently facing (normalized)
 var facing_direction: Vector2 = Vector2.RIGHT
 
 ## Updates facing direction based on movement input.
-## Only updates on horizontal movement to preserve facing when moving vertically.
+## Behavior depends on use_full_direction setting.
 func set_facing_from_direction(direction: Vector2) -> void:
-	if direction.x == 0:
+	if direction == Vector2.ZERO:
 		return
 
-	var new_facing = Vector2(sign(direction.x), 0)
+	var new_facing: Vector2
+	if use_full_direction:
+		new_facing = direction.normalized()
+	else:
+		# Horizontal only - preserve facing when moving vertically
+		if direction.x == 0:
+			return
+		new_facing = Vector2(sign(direction.x), 0)
+	
 	if new_facing != facing_direction:
 		facing_direction = new_facing
 		_update_sprite()

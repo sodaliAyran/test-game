@@ -2,12 +2,13 @@ class_name DirectionalWeaponComponent
 extends Node
 
 @export var weapon_sprite: Sprite2D
+@export var weapon_hitbox: Area2D ## HitboxComponent (Area2D)
 @export var weapon_component: WeaponComponent
 @export var skill_modifier: SkillModifierComponent
 @export var weapon_offset: Vector2 = Vector2(43, -4)
 @export var delay_between_hits: float = 0.15
 
-var _facing: FacingComponent
+var facing: FacingComponent
 var _hit_timer: Timer
 var _current_hit_index: int = 0
 var _total_hits: int = 1
@@ -18,16 +19,17 @@ func _ready() -> void:
 	_connect_to_weapon_component()
 	_setup_hit_timer()
 
-func _find_facing_component() -> void:
-	# Search the weapon's parent (the character) for a FacingComponent
-	var parent = owner.get_parent()
-	if not parent:
-		return
 
-	for child in parent.get_children():
-		if child is FacingComponent:
-			_facing = child
+func _find_facing_component() -> void:
+	# Search up the tree for a FacingComponent
+	var node = get_parent()
+	while node:
+		var found = node.find_child("FacingComponent", false, false)
+		if found and found is FacingComponent:
+			facing = found
 			return
+		node = node.get_parent()
+	push_warning("DirectionalWeaponComponent: Could not find FacingComponent in parent hierarchy")
 
 func _setup_hit_timer() -> void:
 	_hit_timer = Timer.new()
@@ -38,7 +40,7 @@ func _setup_hit_timer() -> void:
 
 func _connect_to_weapon_component() -> void:
 	"""Connect to WeaponComponent signals if set"""
-	if weapon_component:	
+	if weapon_component:
 		weapon_component.attack_started.connect(_on_attack_started)
 	else:
 		print("DirectionalWeaponComponent: WARNING - weapon_component not set!")
@@ -98,19 +100,27 @@ func _on_hit_timer_timeout() -> void:
 
 func _set_weapon_direction() -> void:
 	"""Set weapon position and flip based on character direction and attack type"""
-	if not _facing:
+	if not facing:
 		return
 
-	var facing_right = _facing.is_facing_right()
-	var attack_on_right = (facing_right and _is_front_attack) or (not facing_right and not _is_front_attack)
+	# Get the actual facing direction vector (supports all directions)
+	var direction = facing.facing_direction
+	if direction == Vector2.ZERO:
+		direction = Vector2.RIGHT # Default fallback
+	
+	# For back attacks, reverse the direction
+	if not _is_front_attack:
+		direction = - direction
 
-	if attack_on_right:
-		owner.position.x = weapon_offset.x
-		if weapon_sprite:
-			weapon_sprite.flip_h = false
-	else:
-		owner.position.x = -weapon_offset.x
-		if weapon_sprite:
-			weapon_sprite.flip_h = true
+	# Calculate position offset based on facing direction
+	var offset_distance = weapon_offset.x # Use x as the main offset distance
+	var position_offset = direction.normalized() * offset_distance
+	position_offset.y += weapon_offset.y # Add vertical adjustment
 
-	owner.position.y = weapon_offset.y
+	# Apply position to sprite and hitbox
+	if weapon_sprite:
+		weapon_sprite.position = position_offset
+		# Flip sprite based on horizontal direction
+		weapon_sprite.flip_h = direction.x < 0
+	if weapon_hitbox:
+		weapon_hitbox.position = position_offset

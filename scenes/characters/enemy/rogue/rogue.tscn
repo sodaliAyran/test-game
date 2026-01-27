@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://f2ivkfoof281"]
+[gd_scene load_steps=36 format=3 uid="uid://f2ivkfoof281"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
@@ -30,6 +30,8 @@
 [ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="28_uqr0l"]
 [ext_resource type="Script" uid="uid://cso5vhwnmemab" path="res://scripts/game/components/combat/dash_component.gd" id="29_dash"]
 [ext_resource type="Script" uid="uid://ds6u6cfpglpkp" path="res://scenes/characters/enemy/rogue/dash_state.gd" id="30_dash_state"]
+[ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="31_slot_seeker"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 7.0
@@ -50,6 +52,7 @@ script/source = "extends NodeState
 @export var wobble_animation: WobbleAnimationComponent
 @export var separation: SeparationComponent
 @export var dash: DashComponent
+@export var slot_seeker: Node  # SlotSeekerComponent
 
 @export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
 @export_range(0.0, 1.0) var separation_weight: float = 0.3
@@ -68,18 +71,24 @@ func _on_process(delta : float) -> void:
 	if not movement or not pathfinding:
 		return
 
-	if target:
-		# Target behind the player if they have a facing component
-		var target_pos = target.global_position
+	# Use slot position if available, otherwise direct chase with backstab targeting
+	var chase_target_pos: Vector2
+	if slot_seeker and slot_seeker.has_method(\"get_target_position\"):
+		chase_target_pos = slot_seeker.get_target_position()
+	elif target:
+		chase_target_pos = target.global_position
 		if target.get(\"facing\"):
-			target_pos = target.facing.get_back_position(15.0)
-		pathfinding.set_target_position_throttled(target_pos)
+			chase_target_pos = target.facing.get_back_position(15.0)
+	else:
+		chase_target_pos = owner.global_position
 
-		if dash and dash.can_dash():
-			var distance = owner.global_position.distance_to(target_pos)
-			if distance >= min_dash_distance and distance <= max_dash_distance:
-				_trigger_dash(target_pos)
-				return
+	pathfinding.set_target_position_throttled(chase_target_pos)
+
+	if target and dash and dash.can_dash():
+		var distance = owner.global_position.distance_to(chase_target_pos)
+		if distance >= min_dash_distance and distance <= max_dash_distance:
+			_trigger_dash(chase_target_pos)
+			return
 	
 	# Get pathfinding direction
 	var path_direction = pathfinding.get_target_direction()
@@ -116,6 +125,10 @@ func _on_enter() -> void:
 	_connect_hurtbox()
 	_connect_health()
 
+	# Request a slot around the target
+	if slot_seeker and target and slot_seeker.has_method(\"request_slot_for_target\"):
+		slot_seeker.request_slot_for_target(target)
+
 func _on_exit() -> void:
 	movement.set_velocity(Vector2.ZERO)
 	if wobble_animation:
@@ -123,6 +136,10 @@ func _on_exit() -> void:
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
+
+	# Release slot when leaving chase state
+	if slot_seeker and slot_seeker.has_method(\"release_current_slot\"):
+		slot_seeker.release_current_slot()
 
 
 func _connect_hurtbox() -> void:
@@ -222,7 +239,7 @@ down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "dash")]
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "dash", "slot_seeker")]
 script = SubResource("GDScript_vh0fs")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -232,8 +249,9 @@ health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 separation = NodePath("../../SeparationComponent")
 dash = NodePath("../../DashComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
 
-[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "sprite", "wobble_animation")]
+[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
 script = ExtResource("7_qalk0")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -241,7 +259,7 @@ sense = NodePath("../../EnemySenseComponent")
 separation = NodePath("../../SeparationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
-sprite = NodePath("../../Sprite2D")
+facing = NodePath("../../FacingComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 
 [node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("collision_shapes", "death_animation")]
@@ -249,12 +267,12 @@ script = ExtResource("8_tkq6p")
 collision_shapes = [NodePath("../../Sprite2D/HurtboxComponent/CollisionShape2D"), NodePath("../../CollisionShape2D")]
 death_animation = NodePath("../../DeathAnimationComponent")
 
-[node name="Dash" type="Node" parent="StateMachine" node_paths=PackedStringArray("dash", "hurtbox", "health", "sprite")]
+[node name="Dash" type="Node" parent="StateMachine" node_paths=PackedStringArray("dash", "hurtbox", "health", "facing")]
 script = ExtResource("30_dash_state")
 dash = NodePath("../../DashComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
-sprite = NodePath("../../Sprite2D")
+facing = NodePath("../../FacingComponent")
 return_state = "Chase"
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
@@ -285,9 +303,10 @@ script = ExtResource("12_ghisy")
 max_health = 800
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
-[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
 script = ExtResource("13_x8d76")
 sprite = NodePath("../Sprite2D")
+facing = NodePath("../FacingComponent")
 
 [node name="DeathAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "body")]
 script = ExtResource("14_mpvpb")
@@ -305,6 +324,9 @@ sprite = NodePath("../Sprite2D")
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("16_7ptgb")
+
+[node name="SlotSeekerComponent" type="Node" parent="."]
+script = ExtResource("31_slot_seeker")
 
 [node name="FadeAnimationComponent" type="Node" parent="."]
 script = ExtResource("17_nauew")
@@ -350,3 +372,7 @@ movement = NodePath("../MovementComponent")
 dash_speed = 400.0
 dash_duration = 0.25
 cooldown = 3.0
+
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("32_facing")
+sprite = NodePath("../Sprite2D")

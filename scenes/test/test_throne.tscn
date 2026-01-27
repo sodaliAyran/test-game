@@ -3,7 +3,7 @@
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="1_d51gy"]
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="2_ab5jm"]
 [ext_resource type="PackedScene" uid="uid://by03jig1c7tnm" path="res://scenes/test/wave_spawner.tscn" id="3_4gvio"]
-[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/weapons/sword/sword.tscn" id="3_d51gy"]
+[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="3_d51gy"]
 [ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="4_vw0th"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="6_4gvio"]
 
@@ -12,7 +12,7 @@ vertices = PackedVector2Array(891.031, 436, -698.617, 436, -674.359, -214.008, 8
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-684, -224, 903, -227, 901, 446, -709, 446)])
 
-[node name="TestThrone" type="Node2D"]
+[node name="TestThrone2" type="Node2D"]
 
 [node name="GameTileMap" type="Node2D" parent="."]
 

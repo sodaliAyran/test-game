@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://dlo1nlqynryso"]
+[gd_scene load_steps=36 format=3 uid="uid://dlo1nlqynryso"]
 
 [ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_lklkc"]
@@ -31,6 +31,8 @@
 [ext_resource type="Resource" path="res://resources/traits/coward_trait.tres" id="26_coward"]
 [ext_resource type="Script" uid="uid://b5tpjb2kqlkgj" path="res://scripts/game/systems/nemesis_trait_data.gd" id="28_lwnh4"]
 [ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="30_b28m2"]
+[ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="31_slot_seeker"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -93,7 +95,7 @@ down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation")]
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = ExtResource("7_1mn2y")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -102,8 +104,9 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 separation = NodePath("../../SeparationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
 
-[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "sprite", "wobble_animation")]
+[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
 script = ExtResource("7_flee")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -111,7 +114,7 @@ sense = NodePath("../../EnemySenseComponent")
 separation = NodePath("../../SeparationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
-sprite = NodePath("../../Sprite2D")
+facing = NodePath("../../FacingComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 
 [node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("collision_shapes", "death_animation")]
@@ -147,9 +150,10 @@ script = ExtResource("3_fof2v")
 max_health = 200
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
-[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
 script = ExtResource("12_wobble")
 sprite = NodePath("../Sprite2D")
+facing = NodePath("../FacingComponent")
 
 [node name="DeathAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "body")]
 script = ExtResource("13_death")
@@ -172,6 +176,9 @@ sprite = NodePath("../Sprite2D")
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("17_separation")
+
+[node name="SlotSeekerComponent" type="Node" parent="."]
+script = ExtResource("31_slot_seeker")
 
 [node name="FadeAnimationComponent" type="Node" parent="."]
 script = ExtResource("19_fade_anim")
@@ -208,3 +215,7 @@ script = ExtResource("30_b28m2")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("21_coin")
 max_drops = 3
+
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("32_facing")
+sprite = NodePath("../Sprite2D")

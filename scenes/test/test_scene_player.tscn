@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="1_q17pk"]
 [ext_resource type="TileSet" uid="uid://v1w3l2vrsq0q" path="res://tilesets/game_tile_set.tres" id="1_vcgnq"]
 [ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="2_e46wm"]
-[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/weapons/sword/sword.tscn" id="2_np1fs"]
+[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="2_np1fs"]
 
 [node name="TestSceneTileMap" type="Node2D"]
 

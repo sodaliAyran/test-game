@@ -6,7 +6,7 @@ extends NodeState
 @export var dash: DashComponent
 @export var hurtbox: HurtboxComponent
 @export var health: HealthComponent
-@export var sprite: Sprite2D
+@export var facing: FacingComponent
 @export var return_state: String = "Flee"
 
 var _dash_direction: Vector2 = Vector2.ZERO
@@ -31,9 +31,9 @@ func _on_enter() -> void:
 			_dash_direction = Vector2.RIGHT.rotated(randf() * TAU)
 			dash.dash(_dash_direction)
 
-	# Flip sprite based on dash direction
-	if sprite and _dash_direction.x != 0:
-		sprite.flip_h = _dash_direction.x > 0
+	# Update facing direction
+	if facing:
+		facing.set_facing_from_direction(_dash_direction)
 
 
 func _on_process(_delta: float) -> void:

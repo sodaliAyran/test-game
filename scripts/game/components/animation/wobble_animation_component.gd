@@ -2,6 +2,7 @@ class_name WobbleAnimationComponent
 extends Node
 
 @export var sprite: Sprite2D
+@export var facing: FacingComponent
 @export var frequency: float = 10.0
 @export var amplitude: float = 200.0
 @export var rotation_amplitude: float = 0.1
@@ -24,14 +25,22 @@ func play(delta: float, movement_direction: Vector2 = Vector2.ZERO, target_posit
 		_stretch_sprite(sine_val)
 	
 func _flip_sprite(target_position: Vector2) -> void:
-	if target_position != Vector2.ZERO:
-		var owner_node = sprite.get_parent()
-		if owner_node:
-			var direction_to_player = target_position.x - owner_node.global_position.x
-			if direction_to_player < 0:
-				sprite.flip_h = false
-			elif direction_to_player > 0:
-				sprite.flip_h = true
+	if target_position == Vector2.ZERO:
+		return
+
+	var owner_node = sprite.get_parent()
+	if not owner_node:
+		return
+
+	var direction_to_target = target_position - owner_node.global_position
+	if facing:
+		facing.set_facing_from_direction(direction_to_target)
+	else:
+		# Fallback for backwards compatibility
+		if direction_to_target.x < 0:
+			sprite.flip_h = false
+		elif direction_to_target.x > 0:
+			sprite.flip_h = true
 
 func _rotate_sprite(sine_val: float) -> void:
 	var wobble_rotation = sine_val * rotation_amplitude

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillTree" load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://scripts/game/systems/skill_tree.gd" id="1_tree"]
-[ext_resource type="Script" path="res://scripts/game/systems/skill_data.gd" id="2_data"]
+[ext_resource type="Script" path="res://scripts/game/skills/core/skill_tree.gd" id="1_tree"]
+[ext_resource type="Script" path="res://scripts/game/skills/core/skill_data.gd" id="2_data"]
 
 [sub_resource type="Resource" id="skill_swift_strike"]
 script = ExtResource("2_data")

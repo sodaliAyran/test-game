@@ -1,11 +1,15 @@
-[gd_scene load_steps=8 format=3 uid="uid://bkmerrmyu553b"]
+[gd_scene load_steps=10 format=3 uid="uid://bkmerrmyu553b"]
 
 [ext_resource type="Texture2D" uid="uid://3vcehj1mpljn" path="res://assets/game/objects/pixel_art_sword_slash_sprites.png" id="1_txe8v"]
 [ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="2_ni37t"]
-[ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/components/combat/weapon_component.gd" id="3_weapon"]
-[ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/components/combat/directional_weapon_component.gd" id="4_directional"]
-[ext_resource type="Script" uid="uid://crtoouqenyl57" path="res://scripts/game/components/combat/auto_attack_component.gd" id="5_auto_attack"]
-[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/components/combat/skill_modifier_component.gd" id="6_skill_modifier"]
+[ext_resource type="Script" uid="uid://cfuec0meeclnp" path="res://scripts/game/skills/weapons/weapon_component.gd" id="3_weapon"]
+[ext_resource type="Script" uid="uid://bhwc18nj1twb1" path="res://scripts/game/skills/weapons/directional_weapon_component.gd" id="4_directional"]
+[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/skills/modifiers/skill_modifier_component.gd" id="6_skill_modifier"]
+[ext_resource type="Script" uid="uid://b3rwgaw23bwga" path="res://scripts/game/skills/triggers/skill_cooldown_component.gd" id="7_cooldown"]
+[ext_resource type="Script" uid="uid://d4ikhw448kwck" path="res://scripts/game/skills/triggers/skill_trigger_area.gd" id="8_trigger"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_trigger"]
+radius = 80.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1uu3n"]
 size = Vector2(58.25, 44)
@@ -23,17 +27,28 @@ hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
 skill_modifier = NodePath("../SkillModifierComponent")
 attack_duration = 0.1
 
-[node name="DirectionalWeaponComponent" type="Node" parent="." node_paths=PackedStringArray("weapon_sprite", "weapon_component", "skill_modifier")]
+[node name="DirectionalWeaponComponent" type="Node" parent="." node_paths=PackedStringArray("weapon_sprite", "weapon_hitbox", "weapon_component", "skill_modifier")]
 script = ExtResource("4_directional")
 weapon_sprite = NodePath("../Sprite2D")
+weapon_hitbox = NodePath("../HitboxComponent")
 weapon_component = NodePath("../WeaponComponent")
 skill_modifier = NodePath("../SkillModifierComponent")
 
-[node name="AutoAttackComponent" type="Node" parent="." node_paths=PackedStringArray("weapon", "skill_modifier")]
-script = ExtResource("5_auto_attack")
-weapon = NodePath("../WeaponComponent")
+[node name="SkillCooldownComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier")]
+script = ExtResource("7_cooldown")
 skill_modifier = NodePath("../SkillModifierComponent")
-attack_cooldown = 2.5
+
+[node name="SkillTriggerArea" type="Area2D" parent="." node_paths=PackedStringArray("weapon", "cooldown")]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("8_trigger")
+weapon = NodePath("../WeaponComponent")
+cooldown = NodePath("../SkillCooldownComponent")
+debug_visible = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SkillTriggerArea"]
+shape = SubResource("CircleShape2D_trigger")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(1, 1, 1, 0)
