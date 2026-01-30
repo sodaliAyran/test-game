@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://f2ivkfoof281"]
+[gd_scene load_steps=38 format=3 uid="uid://f2ivkfoof281"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
@@ -33,6 +33,7 @@
 [ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="31_slot_seeker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
 [ext_resource type="Script" uid="uid://blyx375gdxrxj" path="res://scripts/game/components/combat/combat_director_request_component.gd" id="33_director_req"]
+[ext_resource type="Script" uid="uid://j04pe2ujhk6a" path="res://scenes/characters/enemy/rogue/engage_state.gd" id="34_engage"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 7.0
@@ -52,15 +53,12 @@ script/source = "extends NodeState
 @export var health: HealthComponent
 @export var wobble_animation: WobbleAnimationComponent
 @export var separation: SeparationComponent
-@export var dash: DashComponent
 @export var slot_seeker: Node  # SlotSeekerComponent
 
 @export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
 @export_range(0.0, 1.0) var separation_weight: float = 0.3
-
-@export_group(\"Dash Gap Closer\")
-@export var min_dash_distance: float = 0.0
-@export var max_dash_distance: float = 400.0
+## Distance threshold to consider the enemy at its slot position
+@export var slot_arrival_distance: float = 10.0
 
 var got_hurt: bool = false
 var target: Node2D = null
@@ -71,6 +69,14 @@ func _on_process(delta : float) -> void:
 		transition.emit(\"Hurt\")
 	if not movement or not pathfinding:
 		return
+
+	# Check if enemy has reached its slot position -> transition to Engage
+	if slot_seeker and slot_seeker.has_slot():
+		var slot_pos = slot_seeker.get_target_position()
+		var distance_to_slot = owner.global_position.distance_to(slot_pos)
+		if distance_to_slot <= slot_arrival_distance:
+			transition.emit(\"Engage\")
+			return
 
 	# Use slot position if available, otherwise direct chase with backstab targeting
 	var chase_target_pos: Vector2
@@ -85,42 +91,32 @@ func _on_process(delta : float) -> void:
 
 	pathfinding.set_target_position_throttled(chase_target_pos)
 
-	# Check if we should request a dash attack
-	if target and dash and dash.can_dash():
-		var distance = owner.global_position.distance_to(chase_target_pos)
-		if distance >= min_dash_distance and distance <= max_dash_distance:
-			var dash_direction = (chase_target_pos - owner.global_position).normalized()
-			if dash.request_dash(dash_direction):
-				# Dash was requested (or executed if no AP needed)
-				# The dash state transition will happen via signal
-				return
-
 	# Get pathfinding direction
 	var path_direction = pathfinding.get_target_direction()
-	
+
 	# Get separation direction
 	var separation_direction = Vector2.ZERO
 	if separation:
 		separation_direction = separation.get_separation_vector()
-	
+
 	# Blend directions with weights
 	var final_direction = Vector2.ZERO
 	if path_direction != Vector2.ZERO or separation_direction != Vector2.ZERO:
 		final_direction = (
-			path_direction * pathfinding_weight + 
+			path_direction * pathfinding_weight +
 			separation_direction * separation_weight
 		).normalized()
-	
+
 	# Update wobble animation
 	if wobble_animation:
 		var player_pos = target.global_position if target else Vector2.ZERO
 		wobble_animation.play(delta, final_direction, player_pos)
-		
+
 	movement.set_velocity(final_direction)
 
 func _on_physics_process(_delta : float) -> void:
 	pass
-	
+
 func _on_next_transitions() -> void:
 	pass
 
@@ -129,7 +125,6 @@ func _on_enter() -> void:
 	target = sense.current_target
 	_connect_hurtbox()
 	_connect_health()
-	_connect_dash()
 
 	# Request a slot around the target
 	if slot_seeker and target and slot_seeker.has_method(\"request_slot_for_target\"):
@@ -142,11 +137,6 @@ func _on_exit() -> void:
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
-	_disconnect_dash()
-
-	# Release slot when leaving chase state
-	if slot_seeker and slot_seeker.has_method(\"release_current_slot\"):
-		slot_seeker.release_current_slot()
 
 
 func _connect_hurtbox() -> void:
@@ -164,14 +154,14 @@ func _disconnect_hurtbox() -> void:
 func _connect_health() -> void:
 	if health and not health.died.is_connected(_on_death):
 		health.died.connect(_on_death)
-		
+
 func _on_death() -> void:
 	transition.emit(\"Death\")
-	
+
 func _disconnect_health() -> void:
 	if health and health.died.is_connected(_on_death):
 		health.died.disconnect(_on_death)
-		
+
 func _connect_sense() -> void:
 	if sense and not sense.is_connected(\"target_lost\", _on_target_lost):
 		sense.connect(\"target_lost\", Callable(self, \"_on_target_lost\"))
@@ -180,25 +170,10 @@ func _on_target_lost(lost_target):
 	if lost_target == target:
 		target = null
 		transition.emit(\"Idle\")
-		
+
 func _disconnect_sense() -> void:
 	if sense and sense.is_connected(\"target_lost\", _on_target_lost):
 		sense.disconnect(\"target_lost\", Callable(self, \"_on_target_lost\"))
-
-func _connect_dash() -> void:
-	if dash and not dash.dash_started.is_connected(_on_dash_started):
-		dash.dash_started.connect(_on_dash_started)
-
-func _on_dash_started(_direction: Vector2) -> void:
-	# Transition to Dash state when dash begins
-	transition.emit(\"Dash\")
-
-func _disconnect_dash() -> void:
-	if dash:
-		if dash.dash_started.is_connected(_on_dash_started):
-			dash.dash_started.disconnect(_on_dash_started)
-		# Cancel any pending dash request on cleanup
-		dash.cancel_pending_request()
 "
 
 [node name="Rogue" type="CharacterBody2D"]
@@ -251,7 +226,7 @@ down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 
-[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "dash", "slot_seeker")]
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = SubResource("GDScript_vh0fs")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
@@ -260,8 +235,17 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 separation = NodePath("../../SeparationComponent")
-dash = NodePath("../../DashComponent")
 slot_seeker = NodePath("../../SlotSeekerComponent")
+
+[node name="Engage" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "sense", "hurtbox", "health", "wobble_animation", "slot_seeker")]
+script = ExtResource("34_engage")
+movement = NodePath("../../MovementComponent")
+sense = NodePath("../../EnemySenseComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
+skill_paths = Array[NodePath]([NodePath("../../DashComponent")])
 
 [node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
 script = ExtResource("7_qalk0")

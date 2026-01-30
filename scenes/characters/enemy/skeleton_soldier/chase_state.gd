@@ -11,6 +11,8 @@ extends NodeState
 
 @export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
 @export_range(0.0, 1.0) var separation_weight: float = 0.3
+## Distance threshold to consider the enemy "at" its slot position
+@export var slot_arrival_distance: float = 10.0
 
 var got_hurt: bool = false
 var target: Node2D = null
@@ -21,6 +23,14 @@ func _on_process(delta : float) -> void:
 		transition.emit("Hurt")
 	if not movement or not pathfinding:
 		return
+
+	# Check if enemy has reached its slot position → transition to Engage
+	if slot_seeker and slot_seeker.has_slot():
+		var slot_pos = slot_seeker.get_target_position()
+		var distance_to_slot = owner.global_position.distance_to(slot_pos)
+		if distance_to_slot <= slot_arrival_distance:
+			transition.emit("Engage")
+			return
 
 	# Use slot position if available, otherwise direct chase
 	var chase_target_pos: Vector2
@@ -79,10 +89,6 @@ func _on_exit() -> void:
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
-
-	# Release slot when leaving chase state
-	if slot_seeker and slot_seeker.has_method("release_current_slot"):
-		slot_seeker.release_current_slot()
 
 
 func _connect_hurtbox() -> void:

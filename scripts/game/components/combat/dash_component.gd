@@ -205,3 +205,26 @@ func cancel_pending_request() -> void:
 	if director_request:
 		director_request.cancel_pending_request()
 	_pending_dash_direction = Vector2.ZERO
+
+
+## Enemy skill interface — used by generic engage state
+
+func can_use() -> bool:
+	"""Returns true if this skill is available for use (not on cooldown, no pending request)."""
+	return can_dash()
+
+
+func request_use(context: Dictionary) -> bool:
+	"""Request to use this skill via AP system. Context should contain 'target' (Node2D).
+	Dashes toward the target's back if they have a FacingComponent, otherwise straight at them.
+	Returns true if the request was accepted (queued or executed)."""
+	var target: Node2D = context.get("target")
+	if not target:
+		return false
+
+	var target_pos: Vector2 = target.global_position
+	if target.get("facing") and target.facing.has_method("get_back_position"):
+		target_pos = target.facing.get_back_position(15.0)
+
+	var direction = (target_pos - character_body.global_position).normalized()
+	return request_dash(direction)

@@ -24,7 +24,7 @@ func _on_process(delta: float) -> void:
 	
 	var distance_to_target = owner.global_position.distance_to(target.global_position)
 	if distance_to_target > attack_range:
-		transition.emit("Chase")
+		transition.emit("Engage")
 	
 	# Attack cooldown and triggering
 	time_since_last_attack += delta
@@ -52,6 +52,8 @@ func _on_enter() -> void:
 	_connect_attack_animation()
 
 func _on_exit() -> void:
+	# Notify CombatDirector that this attack is done
+	CombatDirector.complete_attack(owner)
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()

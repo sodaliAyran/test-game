@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://ca2bfq1gm3nxc"]
+[gd_scene load_steps=32 format=3 uid="uid://ca2bfq1gm3nxc"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_3g6yi"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_mveou"]
@@ -31,6 +31,8 @@
 [ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="28_ip5rs"]
 [ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="29_slot_seeker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="30_facing"]
+[ext_resource type="Script" uid="uid://bruawf05tyucn" path="res://scenes/characters/enemy/skeleton_soldier/engage_state.gd" id="31_engage"]
+[ext_resource type="Script" uid="uid://13ftg7c0uyf3" path="res://scenes/characters/enemy/skeleton_soldier/attack_state.gd" id="32_attack"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -98,6 +100,23 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 separation = NodePath("../../SeparationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
+
+[node name="Attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health")]
+script = ExtResource("32_attack")
+movement = NodePath("../../MovementComponent")
+pathfinding = NodePath("../../PathfindingComponent")
+sense = NodePath("../../EnemySenseComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+
+[node name="Engage" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "sense", "hurtbox", "health", "wobble_animation", "slot_seeker")]
+script = ExtResource("31_engage")
+movement = NodePath("../../MovementComponent")
+sense = NodePath("../../EnemySenseComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
 slot_seeker = NodePath("../../SlotSeekerComponent")
 
 [node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]

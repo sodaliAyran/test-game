@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=4 uid="uid://dccfppfe3aq5q"]
+[gd_scene load_steps=9 format=4 uid="uid://dccfppfe3aq5q"]
 
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="1_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="2_m4tr5"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://f2ivkfoof281" path="res://scenes/characters/enemy/rogue/rogue.tscn" id="5_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://ca2bfq1gm3nxc" path="res://scenes/characters/enemy/berserker/berserker.tscn" id="6_m4tr5"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="6_qov67"]
+[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="7_m4tr5"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_ab5jm"]
 vertices = PackedVector2Array(719.93, 527.109, -658.313, 524.922, -658.313, -190.648, 722.141, -199.43)
@@ -13,6 +14,7 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-668.314, -200.589, 732.18, -209.504, 729.899, 537.132, -668.314, 534.903)])
 
 [node name="TestThrone" type="Node2D"]
+position = Vector2(0, -2)
 
 [node name="GameTileMap" type="Node2D" parent="."]
 
@@ -44,3 +46,6 @@ scale = Vector2(1, 1.00756)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(141, 21)
+
+[node name="SkeletonSoldier" parent="." instance=ExtResource("7_m4tr5")]
+position = Vector2(262, 39)

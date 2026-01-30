@@ -31,7 +31,7 @@ func _on_next_transitions() -> void:
 		if _should_flee():
 			transition.emit("Flee")
 		else:
-			transition.emit("Idle")
+			transition.emit("Chase")
 
 func _on_exit() -> void:
 	if down_animation:
