@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://d1evxwox8n1o5"]
+
+[ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="1_warrior"]
+[ext_resource type="PackedScene" path="res://scenes/skills/arrow/arrow_skill.tscn" id="2_arrow_skill"]
+[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="3_skeleton"]
+
+[node name="TestProjectile" type="Node2D"]
+
+[node name="Warrior" parent="." instance=ExtResource("1_warrior")]
+position = Vector2(200, 180)
+
+[node name="ArrowSkill" parent="Warrior" instance=ExtResource("2_arrow_skill")]
+
+[node name="Camera2D" type="Camera2D" parent="Warrior"]
+
+[node name="SkeletonSoldier" parent="." instance=ExtResource("3_skeleton")]
+position = Vector2(350, 180)
+
+[node name="SkeletonSoldier2" parent="." instance=ExtResource("3_skeleton")]
+position = Vector2(400, 150)
+
+[node name="SkeletonSoldier3" parent="." instance=ExtResource("3_skeleton")]
+position = Vector2(380, 210)

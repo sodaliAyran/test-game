@@ -1,6 +1,6 @@
 extends NodeState
 
-@export var hurt_animation: HurtStaggerAnimationComponent
+@export var hurt_animation: 
 
 func _on_process(_delta : float) -> void:
 	pass

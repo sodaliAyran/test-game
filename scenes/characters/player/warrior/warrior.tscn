@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dj3ftqqhuu0c6"]
+[gd_scene load_steps=23 format=3 uid="uid://dj3ftqqhuu0c6"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_kctm8"]
@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://dlyfprr1rxwtk" path="res://scenes/characters/player/warrior/warrior.gd" id="18_warrior_script"]
 [ext_resource type="Script" uid="uid://cljyqaixbkb4s" path="res://scripts/game/components/player/collection_tracker_component.gd" id="19_collection_tracker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="20_facing"]
+[ext_resource type="Script" uid="uid://cvpm7sjn7hur7" path="res://scripts/game/components/animation/facing_indicator_component.gd" id="21_facing_indicator"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
 height = 36.0
@@ -26,7 +27,7 @@ height = 36.0
 height = 36.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_collector"]
-radius = 12.0
+radius = 29.8525
 
 [node name="Warrior" type="CharacterBody2D" groups=["Player"]]
 z_index = 1
@@ -41,11 +42,10 @@ shape = SubResource("CapsuleShape2D_ufoae")
 [node name="CharacterSprite" type="Sprite2D" parent="."]
 texture_filter = 1
 position = Vector2(1.81899e-12, 2.38419e-07)
-scale = Vector2(1.25, 1.25)
 texture = ExtResource("1_vdkrx")
 flip_h = true
 region_enabled = true
-region_rect = Rect2(32, 32, 32, 32)
+region_rect = Rect2(0, 32, 32, 32)
 
 [node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
 collision_layer = 16
@@ -67,7 +67,7 @@ metadata/_custom_type_script = "uid://d0o1p6dmhgrbt"
 [node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body")]
 script = ExtResource("5_nkuma")
 character_body = NodePath("..")
-move_speed = 35.0
+move_speed = 50.0
 metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
@@ -82,6 +82,10 @@ metadata/_custom_type_script = "uid://850sk6q2ppie"
 [node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("20_facing")
 sprite = NodePath("../CharacterSprite")
+
+[node name="FacingIndicatorComponent" type="Node2D" parent="." node_paths=PackedStringArray("facing")]
+script = ExtResource("21_facing_indicator")
+facing = NodePath("../FacingComponent")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("7_nkuma")
@@ -115,11 +119,13 @@ collision_shapes = [NodePath("../../CollisionShape2D"), NodePath("../../HurtboxC
 [node name="HurtStaggerAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("10_kgfjb")
 sprite = NodePath("../CharacterSprite")
+hurt_color = Color(3, 0.3, 0.3, 1)
 metadata/_custom_type_script = "uid://echlin1jyex0"
 
 [node name="HurtFlashAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("13_hurt_flash")
 sprite = NodePath("../CharacterSprite")
+flash_color = Color(3, 0.3, 0.3, 1)
 
 [node name="DeathAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "body")]
 script = ExtResource("14_death_anim")
@@ -136,7 +142,7 @@ collision_mask = 64
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollectorComponent/CollectionArea"]
 position = Vector2(-2, 0)
-scale = Vector2(0.866634, 0.690976)
+scale = Vector2(0.688372, 0.784054)
 shape = SubResource("CircleShape2D_collector")
 debug_color = Color(0.697649, 0.493616, 0, 0.42)
 

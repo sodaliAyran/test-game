@@ -1,52 +1,52 @@
 extends Node
 
-## Debug helper to unlock skills with number keys
+## Debug helper to level up skills with number keys.
+## Each press increases the skill by 1 level.
 
 func _ready() -> void:
-	print("SkillDebugInput: Press 1-7 to unlock skills, 0 to reset")
+	print("SkillDebugInput: Press 1-8 to level skills, 0 to reset, 9 to max all")
 
 
 func _input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
-	
+
 	var key_event = event as InputEventKey
 	if not key_event.pressed or key_event.echo:
 		return
-	
+
 	match key_event.keycode:
 		KEY_1:
-			SkillManager.unlock_skill("swift_strike")
-			print("DEBUG: Unlocked Swift Strike (+20% attack speed)")
+			_level_up_skill("sword_slash")
 		KEY_2:
-			SkillManager.unlock_skill("power_strike")
-			print("DEBUG: Unlocked Power Strike (+30% damage)")
+			_level_up_skill("punch")
 		KEY_3:
-			SkillManager.unlock_skill("wide_slash")
-			print("DEBUG: Unlocked Wide Slash (+40% attack size)")
+			_level_up_skill("vitality")
 		KEY_4:
-			if SkillManager.unlock_skill("double_strike"):
-				print("DEBUG: Unlocked Double Strike (2 hits)")
-			else:
-				print("DEBUG: Failed - Double Strike requires Swift Strike (press 1 first)")
+			_level_up_skill("magnetism")
 		KEY_5:
-			if SkillManager.unlock_skill("triple_strike"):
-				print("DEBUG: Unlocked Triple Strike (3 hits)")
-			else:
-				print("DEBUG: Failed - Triple Strike requires Double Strike (press 4 first)")
+			_level_up_skill("looter")
 		KEY_6:
-			if SkillManager.unlock_skill("whirlwind_strike"):
-				print("DEBUG: Unlocked Whirlwind Strike (4 hits)")
-			else:
-				print("DEBUG: Failed - Whirlwind Strike requires Triple Strike (press 5 first)")
+			_level_up_skill("stunning_blows")
 		KEY_7:
-			if SkillManager.unlock_skill("devastating_blow"):
-				print("DEBUG: Unlocked Devastating Blow (+50% damage)")
-			else:
-				print("DEBUG: Failed - Devastating Blow requires Power Strike (press 2 first)")
+			_level_up_skill("heavy_hits")
+		KEY_8:
+			_level_up_skill("swift_cooldown")
 		KEY_0:
 			SkillManager.reset_skills()
 			print("DEBUG: Reset all skills")
 		KEY_9:
 			SkillManager.debug_unlock_all("warrior")
-			print("DEBUG: Unlocked ALL skills")
+			print("DEBUG: Maxed ALL skills")
+
+
+func _level_up_skill(skill_id: String) -> void:
+	var current = SkillManager.get_skill_level(skill_id)
+	if SkillManager.acquire_skill(skill_id):
+		print("DEBUG: %s -> level %d" % [skill_id, current + 1])
+	else:
+		var skill = SkillManager.find_skill_in_trees(skill_id)
+		if skill and current >= skill.max_level:
+			print("DEBUG: %s already at max level %d" % [skill_id, skill.max_level])
+		else:
+			print("DEBUG: Failed to level up %s" % skill_id)

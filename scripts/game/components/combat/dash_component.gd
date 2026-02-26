@@ -1,6 +1,8 @@
 class_name DashComponent
 extends Node
 
+const WindupIndicatorComponentScript = preload("res://scripts/game/components/animation/windup_indicator_component.gd")
+
 ## Handles dash movement with invincibility frames.
 ## Can be used by both players and enemies.
 ## Use CombatDirectorRequestComponent for AP token integration.
@@ -22,9 +24,15 @@ extends Node
 @export var ap_priority: int = 60  ## Priority for AP requests
 @export var action_label: String = "dash_attack"  ## Label for debugging/logging
 
+@export_group("Windup")
+@export var windup_duration: float = 0.3
+@export var windup_sprite: Sprite2D  ## Sprite to darken/squeeze during windup
+@export var ap_refund_ratio: float = 0.5
+
 signal dash_started(direction: Vector2)
 signal dash_ended
 signal cooldown_finished
+signal windup_finished(direction: Vector2)
 
 var _is_dashing: bool = false
 var _dash_direction: Vector2 = Vector2.ZERO
@@ -32,6 +40,8 @@ var _dash_timer: Timer
 var _cooldown_timer: Timer
 var _original_invincible: bool = false
 var _pending_dash_direction: Vector2 = Vector2.ZERO
+var _indicator: WindupIndicatorComponent
+var _sprite_effect: DashWindupEffect
 
 
 func _ready() -> void:
@@ -150,8 +160,66 @@ func dash(direction: Vector2) -> bool:
 
 func _execute_approved_dash() -> void:
 	"""Called when CombatDirector approves the dash request"""
-	dash(_pending_dash_direction)
+	if windup_duration > 0.0:
+		var dash_distance = _get_modified_speed() * _get_modified_duration()
+		_create_indicator(dash_distance)
+		_create_sprite_effect(dash_distance)
+		if _indicator:
+			_indicator.completed.connect(_on_windup_completed)
+		else:
+			_on_windup_completed()
+	else:
+		_on_windup_completed()
+
+
+func _create_sprite_effect(dash_distance: float) -> void:
+	if not windup_sprite or not character_body:
+		return
+	_sprite_effect = DashWindupEffect.create(
+		windup_sprite,
+		character_body,
+		_pending_dash_direction,
+		dash_distance,
+		windup_duration
+	)
+
+
+func _create_indicator(dash_distance: float) -> void:
+	if not character_body:
+		return
+
+	_indicator = WindupIndicatorComponentScript.new()
+	_indicator.duration = windup_duration
+	_indicator.configure_line(_pending_dash_direction, dash_distance, 2.0)
+	character_body.get_tree().current_scene.add_child(_indicator)
+	_indicator.global_position = character_body.global_position
+	_indicator.start()
+
+
+func _on_windup_completed() -> void:
+	_indicator = null
+	_sprite_effect = null
+	windup_finished.emit(_pending_dash_direction)
 	_pending_dash_direction = Vector2.ZERO
+
+
+func cancel_windup() -> void:
+	var was_active = (_indicator and _indicator.is_active()) or (_sprite_effect and _sprite_effect.is_active())
+	if not was_active:
+		return
+
+	if _indicator and _indicator.is_active():
+		_indicator.cancel()
+	_indicator = null
+
+	if _sprite_effect and _sprite_effect.is_active():
+		_sprite_effect.cancel()
+	_sprite_effect = null
+
+	_pending_dash_direction = Vector2.ZERO
+	if director_request:
+		director_request.complete_action()
+	CombatDirector.refund_ap(ap_cost * ap_refund_ratio)
 
 
 func _on_dash_timeout() -> void:
@@ -201,10 +269,17 @@ func force_end_dash() -> void:
 
 
 func cancel_pending_request() -> void:
-	"""Cancel any pending AP request"""
+	"""Cancel any pending AP request or active windup"""
+	if _indicator and _indicator.is_active():
+		cancel_windup()
+		return
 	if director_request:
 		director_request.cancel_pending_request()
 	_pending_dash_direction = Vector2.ZERO
+
+
+func is_winding_up() -> bool:
+	return (_indicator != null and _indicator.is_active()) or (_sprite_effect != null and _sprite_effect.is_active())
 
 
 ## Enemy skill interface — used by generic engage state

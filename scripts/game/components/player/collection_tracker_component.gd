@@ -4,6 +4,8 @@ extends Node
 ## Lightweight component that tracks when items are collected
 ## and reports them to the GameStats manager
 
+@export var xp_per_coin: int = 1
+
 func _ready() -> void:
 	# Wait a frame for parent to be fully ready
 	await get_tree().process_frame
@@ -37,3 +39,4 @@ func _on_item_collected(collectible_type: String, value: int) -> void:
 	"""Called when an item is collected."""
 	if collectible_type == "coin" and GameStats:
 		GameStats.add_coins(value)
+		GameStats.add_xp(value * xp_per_coin)

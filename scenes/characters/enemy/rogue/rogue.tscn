@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://f2ivkfoof281"]
+[gd_scene load_steps=42 format=3 uid="uid://f2ivkfoof281"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
@@ -34,6 +34,10 @@
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
 [ext_resource type="Script" uid="uid://blyx375gdxrxj" path="res://scripts/game/components/combat/combat_director_request_component.gd" id="33_director_req"]
 [ext_resource type="Script" uid="uid://j04pe2ujhk6a" path="res://scenes/characters/enemy/rogue/engage_state.gd" id="34_engage"]
+[ext_resource type="Script" uid="uid://bsr344wq40tlo" path="res://scripts/game/components/combat/knockbackable_component.gd" id="35_knockbackable"]
+[ext_resource type="Script" uid="uid://0lqocve43ixa" path="res://scripts/game/states/enemy/stunned_state.gd" id="36_stunned"]
+[ext_resource type="Script" uid="uid://cdahn5s3sfw2m" path="res://scripts/game/components/animation/stun_animation_component.gd" id="37_stun_anim"]
+[ext_resource type="Script" uid="uid://dbo5bimjy5wbg" path="res://scripts/game/components/ui/stun_bar_component.gd" id="38_stun_bar"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 7.0
@@ -220,11 +224,23 @@ script = ExtResource("5_4ayy1")
 hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 
-[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health")]
+[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health", "knockbackable")]
 script = ExtResource("5_down")
 down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+
+[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state")]
+script = ExtResource("36_stunned")
+stun_animation = NodePath("../../StunAnimationComponent")
+stun_bar = NodePath("../../StunBarComponent")
+health = NodePath("../../HealthComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+movement = NodePath("../../MovementComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+director_request = NodePath("../../CombatDirectorRequestComponent")
+down_state = NodePath("../Down")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = SubResource("GDScript_vh0fs")
@@ -296,7 +312,7 @@ metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("12_ghisy")
-max_health = 800
+max_health = 15
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
 [node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
@@ -317,6 +333,13 @@ metadata/_custom_type_script = "uid://echlin1jyex0"
 [node name="DownAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("5_down_anim")
 sprite = NodePath("../Sprite2D")
+
+[node name="StunAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("37_stun_anim")
+sprite = NodePath("../Sprite2D")
+
+[node name="StunBarComponent" type="Node2D" parent="."]
+script = ExtResource("38_stun_bar")
 
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("16_7ptgb")
@@ -345,7 +368,6 @@ script = ExtResource("22_0aghf")
 dialogue_data = ExtResource("23_4xr3s")
 display_duration = 5.0
 vertical_offset = -45.0
-font_size = 8
 
 [node name="KillTrackerComponent" type="Node" parent="."]
 script = ExtResource("24_o1e2f")
@@ -358,13 +380,14 @@ traits = Array[ExtResource("26_piu8e")]([ExtResource("27_6er55")])
 script = ExtResource("28_uqr0l")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("20_yi8sa")
+drop_chance = 1.0
 max_drops = 3
 
 [node name="CombatDirectorRequestComponent" type="Node" parent="."]
 script = ExtResource("33_director_req")
 default_priority = 60
 
-[node name="DashComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox", "movement", "director_request")]
+[node name="DashComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox", "movement", "director_request", "windup_sprite")]
 script = ExtResource("29_dash")
 character_body = NodePath("..")
 hurtbox = NodePath("../Sprite2D/HurtboxComponent")
@@ -373,7 +396,14 @@ director_request = NodePath("../CombatDirectorRequestComponent")
 dash_speed = 400.0
 dash_duration = 0.25
 cooldown = 3.0
+windup_duration = 1.5
+windup_sprite = NodePath("../Sprite2D")
 
 [node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("32_facing")
 sprite = NodePath("../Sprite2D")
+
+[node name="KnockbackableComponent" type="Node" parent="." node_paths=PackedStringArray("health", "state_machine")]
+script = ExtResource("35_knockbackable")
+health = NodePath("../HealthComponent")
+state_machine = NodePath("../StateMachine")

@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://bb122ptv84wjc"]
+
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="1_hitbox"]
+[ext_resource type="Script" uid="uid://b1nc5f36tlofw" path="res://scripts/game/skills/projectile/projectile_component.gd" id="2_projectile"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_arrow"]
+size = Vector2(16, 4)
+
+[node name="ArrowProjectile" type="Area2D"]
+collision_layer = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="ProjectileComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox")]
+script = ExtResource("2_projectile")
+speed = 500.0
+max_distance = 600.0
+lifetime = 3.0
+sprite = NodePath("../Sprite2D")
+hitbox = NodePath("../HitboxComponent")
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+script = ExtResource("1_hitbox")
+knockback = 50.0
+knockback_enabled = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+shape = SubResource("RectangleShape2D_arrow")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_arrow")

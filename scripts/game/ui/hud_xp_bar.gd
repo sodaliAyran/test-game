@@ -1,6 +1,8 @@
 class_name HUDXPBar
 extends Control
 
+var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
+
 ## HUD-style XP bar for player (displayed below health bar)
 ## Displays XP progress and current level
 
@@ -26,7 +28,12 @@ extends Control
 @export var smooth_transition: bool = true
 @export var transition_speed: float = 10.0
 @export var level_up_flash: bool = true
-@export var flash_duration: float = 0.3
+@export var flash_duration: float = 1.0
+
+@export_group("Level Up Effect")
+@export var screen_flash_color: Color = Color(0.9, 0.95, 1.0, 0.6)
+@export var screen_flash_duration: float = 0.6
+@export var bar_pulse_scale: float = 1.2
 
 # Internal state
 var current_xp: int = 0
@@ -35,16 +42,20 @@ var current_level: int = 1
 var target_xp_ratio: float = 0.0
 var current_xp_ratio: float = 0.0
 var flash_timer: float = 0.0
+var screen_flash_timer: float = 0.0
+var pulse_timer: float = 0.0
 
 # UI nodes
 var background_rect: ColorRect
 var xp_rect: ColorRect
 var border_panel: Panel
 var level_label: Label
+var screen_flash_rect: ColorRect
 
 func _ready() -> void:
 	_adjust_positioning()
 	_setup_ui()
+	_setup_screen_flash()
 	_connect_to_game_stats()
 
 func _adjust_positioning() -> void:
@@ -95,6 +106,7 @@ func _setup_ui() -> void:
 		level_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 		level_label.position = Vector2(0, bar_height + level_offset)
 		level_label.size = Vector2(bar_width, level_font_size + 4)
+		level_label.add_theme_font_override("font", PIXEL_FONT)
 		level_label.add_theme_color_override("font_color", level_color)
 		level_label.add_theme_font_size_override("font_size", level_font_size)
 		level_label.add_theme_constant_override("shadow_offset_x", 1)
@@ -113,13 +125,33 @@ func _process(delta: float) -> void:
 	var bar_inner_width = bar_width - border_width * 2
 	xp_rect.size.x = bar_inner_width * current_xp_ratio
 
-	# Handle level up flash
+	# Handle level up bar flash (brighter, more intense)
 	if flash_timer > 0:
 		flash_timer -= delta
-		var flash_intensity = flash_timer / flash_duration
-		xp_rect.modulate = Color(1.0 + flash_intensity * 0.8, 1.0 + flash_intensity * 0.8, 1.0 + flash_intensity * 0.3)
+		var t = flash_timer / flash_duration
+		# Pulsing glow effect
+		var pulse = sin(t * PI * 4) * 0.3 + 0.7
+		xp_rect.modulate = Color(1.0 + t * 1.5 * pulse, 1.0 + t * 1.5 * pulse, 1.0 + t * 0.5 * pulse)
 	else:
 		xp_rect.modulate = Color.WHITE
+
+	# Handle bar scale pulse
+	if pulse_timer > 0:
+		pulse_timer -= delta
+		var t = pulse_timer / flash_duration
+		var scale_amount = 1.0 + (bar_pulse_scale - 1.0) * sin(t * PI)
+		pivot_offset = size / 2
+		scale = Vector2(scale_amount, scale_amount)
+	else:
+		scale = Vector2.ONE
+
+	# Handle screen flash
+	if screen_flash_timer > 0 and screen_flash_rect:
+		screen_flash_timer -= delta
+		var t = screen_flash_timer / screen_flash_duration
+		screen_flash_rect.color.a = screen_flash_color.a * t
+	elif screen_flash_rect:
+		screen_flash_rect.color.a = 0.0
 
 func update_xp(new_xp: int, new_xp_for_next: int, new_level: int) -> void:
 	var old_level = current_level
@@ -131,13 +163,25 @@ func update_xp(new_xp: int, new_xp_for_next: int, new_level: int) -> void:
 	if show_level and level_label:
 		_update_level_text()
 
-	# Trigger flash effect on level up
+	# Trigger flash effects on level up
 	if level_up_flash and new_level > old_level:
 		flash_timer = flash_duration
+		pulse_timer = flash_duration
+		screen_flash_timer = screen_flash_duration
 
 func _update_level_text() -> void:
 	if level_label:
 		level_label.text = "Lv %d" % current_level
+
+func _setup_screen_flash() -> void:
+	# Create fullscreen flash overlay (add to CanvasLayer parent)
+	var canvas_layer = get_parent()
+	if canvas_layer is CanvasLayer:
+		screen_flash_rect = ColorRect.new()
+		screen_flash_rect.color = Color(screen_flash_color.r, screen_flash_color.g, screen_flash_color.b, 0.0)
+		screen_flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		screen_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		canvas_layer.add_child(screen_flash_rect)
 
 func _connect_to_game_stats() -> void:
 	# Wait a frame for autoloads to be ready

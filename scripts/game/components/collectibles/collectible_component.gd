@@ -9,6 +9,7 @@ signal collected(collector)
 @export var collection_distance: float = 10.0  # Distance at which it's collected
 
 var is_attracted: bool = false
+var is_collecting: bool = false
 var target_collector: Node2D = null
 
 func _ready() -> void:
@@ -22,6 +23,8 @@ func _exit_tree() -> void:
 		SpatialGrid.unregister_entity(self, "collectibles")
 
 func _process(delta: float) -> void:
+	if is_collecting:
+		return
 	if is_attracted and is_instance_valid(target_collector):
 		# Move toward collector with magnetic attraction
 		var direction = (target_collector.global_position - global_position)
@@ -41,7 +44,7 @@ func _process(delta: float) -> void:
 
 func start_attraction(collector: Node2D) -> void:
 	"""Start being attracted to a collector."""
-	if not is_attracted:
+	if not is_attracted and not is_collecting:
 		is_attracted = true
 		target_collector = collector
 
@@ -50,7 +53,26 @@ func stop_attraction() -> void:
 	is_attracted = false
 	target_collector = null
 
-func _collect() -> void:
+func _collect(collector_override: Node2D = null) -> void:
 	"""Called when the collectible is collected."""
-	collected.emit(target_collector)
-	queue_free()
+	if is_collecting:
+		return
+	is_collecting = true
+
+	# Use override if provided (from direct area collision), otherwise use magnetic target
+	var collector = collector_override if is_instance_valid(collector_override) else target_collector
+	collected.emit(collector)
+
+	# Stop attraction so the animation controls movement
+	is_attracted = false
+
+	# Unregister from spatial grid so it won't be queried again
+	if SpatialGrid:
+		SpatialGrid.unregister_entity(self, "collectibles")
+
+	# Play collection animation if available, otherwise free immediately
+	var anim = get_node_or_null("CollectAnimationComponent")
+	if anim and anim.has_method("play") and is_instance_valid(collector):
+		anim.play(collector)
+	else:
+		queue_free()

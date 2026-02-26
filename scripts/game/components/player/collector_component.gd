@@ -6,6 +6,7 @@ signal item_collected(collectible_type: String, value: int)
 @export var collection_area: Area2D  # Area2D for instant collection on contact
 @export var magnet_radius: float = 15.0  # Radius for magnetic attraction
 @export var query_interval: float = 0.1  # How often to query spatial grid (seconds)
+@export var skill_modifier: SkillModifierComponent  ## Optional - for magnet range bonus
 
 var query_timer: float = 0.0
 
@@ -25,7 +26,10 @@ func _query_nearby_collectibles() -> void:
 	if not SpatialGrid:
 		return
 	
-	var nearby = SpatialGrid.query_nearby(global_position, magnet_radius, "collectibles")
+	var effective_radius = magnet_radius
+	if skill_modifier:
+		effective_radius += skill_modifier.get_magnet_bonus()
+	var nearby = SpatialGrid.query_nearby(global_position, effective_radius, "collectibles")
 	
 	for collectible in nearby:
 		if is_instance_valid(collectible) and collectible.has_method("start_attraction"):
@@ -39,9 +43,9 @@ func _on_area_entered(area: Area2D) -> void:
 		# Get collectible info before it's freed
 		var type = collectible.collectible_type if "collectible_type" in collectible else "unknown"
 		var val = collectible.value if "value" in collectible else 1
-		
+
 		# Emit signal for game logic (UI updates, stats, etc.)
 		item_collected.emit(type, val)
-		
-		# The collectible will handle its own cleanup
-		collectible._collect()
+
+		# Pass owner as collector so the collection animation knows where to swoop to
+		collectible._collect(owner)

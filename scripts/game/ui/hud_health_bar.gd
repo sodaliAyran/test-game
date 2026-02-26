@@ -1,6 +1,8 @@
 class_name HUDHealthBar
 extends Control
 
+var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
+
 ## HUD-style health bar for player (MOBA-style at bottom of screen)
 ## Displays health bar with current/max health text
 
@@ -121,6 +123,7 @@ func _setup_ui() -> void:
 		health_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		health_label.position = Vector2(0, 0)
 		health_label.size = size
+		health_label.add_theme_font_override("font", PIXEL_FONT)
 		health_label.add_theme_color_override("font_color", text_color)
 		health_label.add_theme_font_size_override("font_size", font_size)
 		# Add shadow for better readability
@@ -138,6 +141,7 @@ func _setup_ui() -> void:
 		name_label.position = Vector2(0, -(name_font_size + name_offset + border_width))
 		name_label.size = Vector2(bar_width, name_font_size + 4)
 		name_label.text = boss_name
+		name_label.add_theme_font_override("font", PIXEL_FONT)
 		name_label.add_theme_color_override("font_color", name_color)
 		name_label.add_theme_font_size_override("font_size", name_font_size)
 		# Add shadow for readability
@@ -204,6 +208,7 @@ func set_boss_name(new_name: String) -> void:
 		name_label.position = Vector2(0, -(name_font_size + name_offset + border_width))
 		name_label.size = Vector2(bar_width, name_font_size + 4)
 		name_label.text = new_name
+		name_label.add_theme_font_override("font", PIXEL_FONT)
 		name_label.add_theme_color_override("font_color", name_color)
 		name_label.add_theme_font_size_override("font_size", name_font_size)
 		name_label.add_theme_constant_override("shadow_offset_x", 1)

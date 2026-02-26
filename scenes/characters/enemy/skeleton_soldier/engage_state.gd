@@ -16,11 +16,18 @@ extends NodeState
 ## Time between AP request attempts when denied/expired
 @export var request_cooldown: float = 0.8
 
+@export_group("Windup")
+@export var windup_duration: float = 0.35
+@export var windup_color: Color = Color.RED
+@export var windup_sprite: Sprite2D
+@export var ap_refund_ratio: float = 0.5
+
 var got_hurt: bool = false
 var target: Node2D = null
 var _ap_requested: bool = false
 var _ap_approved: bool = false
 var _request_cooldown_timer: float = 0.0
+var _windup: WindupEffect
 
 
 func _on_enter() -> void:
@@ -55,8 +62,12 @@ func _on_process(delta: float) -> void:
 		transition.emit("Chase")
 		return
 
-	# Hold position at slot
-	_move_to_slot(delta)
+	# Stop movement during windup, otherwise hold position at slot
+	if _windup and _windup.is_active():
+		if movement:
+			movement.set_velocity(Vector2.ZERO)
+	else:
+		_move_to_slot(delta)
 
 	# Check ring and act accordingly
 	if slot_seeker and slot_seeker.is_in_inner_ring():
@@ -145,6 +156,11 @@ func _request_melee_ap() -> void:
 
 
 func _cancel_ap_request() -> void:
+	if _windup and _windup.is_active():
+		_windup.cancel()
+		_windup = null
+		CombatDirector.complete_attack(owner)
+		CombatDirector.refund_ap(melee_ap_cost * ap_refund_ratio)
 	if _ap_requested:
 		CombatDirector.cancel_request(owner)
 		_ap_requested = false
@@ -152,8 +168,18 @@ func _cancel_ap_request() -> void:
 
 
 func _on_ap_approved() -> void:
-	_ap_approved = true
 	_ap_requested = false
+
+	if windup_duration > 0.0 and windup_sprite:
+		_windup = WindupEffect.create(windup_sprite, windup_duration, windup_color)
+		_windup.completed.connect(_on_windup_completed)
+	else:
+		_on_windup_completed()
+
+
+func _on_windup_completed() -> void:
+	_windup = null
+	_ap_approved = true
 
 
 ## Signal connections

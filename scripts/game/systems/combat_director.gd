@@ -113,6 +113,14 @@ func get_pending_request_count() -> int:
 	return _pending_requests.size()
 
 
+## Refund AP back to the pool (e.g., when a windup is interrupted)
+func refund_ap(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	current_ap = min(current_ap + amount, max_ap)
+	ap_changed.emit(current_ap, max_ap)
+
+
 ## Refill AP over time
 func _refill_ap(delta: float) -> void:
 	var old_ap = current_ap

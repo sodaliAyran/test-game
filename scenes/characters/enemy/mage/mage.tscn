@@ -1,0 +1,363 @@
+[gd_scene load_steps=34 format=3 uid="uid://cp2dmy2yat336"]
+
+[ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_qmoh6"]
+[ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_3bn6v"]
+[ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="3_ssd48"]
+[ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/skeleton_soldier/idle_state.gd" id="4_dpllv"]
+[ext_resource type="Script" uid="uid://bkalfexdm6mfi" path="res://scripts/game/states/enemy/hurt_state.gd" id="5_mxuf0"]
+[ext_resource type="Script" uid="uid://0nia7tc4g617" path="res://scripts/game/states/enemy/down_state.gd" id="6_2slcd"]
+[ext_resource type="Script" uid="uid://0lqocve43ixa" path="res://scripts/game/states/enemy/stunned_state.gd" id="7_yci4p"]
+[ext_resource type="Script" uid="uid://lua3yyqyrpib" path="res://scenes/characters/enemy/mage/engage_state.gd" id="8_6t47o"]
+[ext_resource type="Script" uid="uid://blt8qxujohwor" path="res://scripts/game/components/enemy/enemy_sense_component.gd" id="9_g4q4c"]
+[ext_resource type="Script" uid="uid://dphatmavxn3u8" path="res://scripts/game/components/enemy/pathfinding_component.gd" id="10_3jf7h"]
+[ext_resource type="Script" uid="uid://c7bsngihe1vew" path="res://scripts/game/components/core/movement_component.gd" id="11_dij8q"]
+[ext_resource type="Script" uid="uid://ch8r0xsbtuj63" path="res://scripts/game/components/core/health_component.gd" id="12_kphks"]
+[ext_resource type="Script" uid="uid://850sk6q2ppie" path="res://scripts/game/components/animation/wobble_animation_component.gd" id="13_xld05"]
+[ext_resource type="Script" uid="uid://echlin1jyex0" path="res://scripts/game/components/animation/hurt_stagger_animation_component.gd" id="14_adrdf"]
+[ext_resource type="Script" uid="uid://ba75h6leyutgo" path="res://scripts/game/components/animation/down_animation_component.gd" id="15_ya8td"]
+[ext_resource type="Script" uid="uid://cdahn5s3sfw2m" path="res://scripts/game/components/animation/stun_animation_component.gd" id="16_fj80u"]
+[ext_resource type="Script" uid="uid://dbo5bimjy5wbg" path="res://scripts/game/components/ui/stun_bar_component.gd" id="17_bf75d"]
+[ext_resource type="Script" uid="uid://bcayodtipc5tk" path="res://scripts/game/components/enemy/separation_component.gd" id="18_tcfce"]
+[ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="19_n4hic"]
+[ext_resource type="Script" uid="uid://b35kv6kb2iivw" path="res://scripts/game/components/ui/damage_number_component.gd" id="21_da7h6"]
+[ext_resource type="Script" uid="uid://5xngd2y3x7h" path="res://scripts/game/components/enemy/enemy_damage_component.gd" id="22_wifjx"]
+[ext_resource type="Script" uid="uid://dhxbfyvsdh8be" path="res://scripts/game/components/systems/kill_tracker_component.gd" id="23_i4i1d"]
+[ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="24_ogt13"]
+[ext_resource type="PackedScene" uid="uid://cn74jcjtvrdmu" path="res://scenes/objects/coin.tscn" id="25_uymsl"]
+[ext_resource type="Script" uid="uid://blyx375gdxrxj" path="res://scripts/game/components/combat/combat_director_request_component.gd" id="26_h7q4l"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="27_4w6ew"]
+[ext_resource type="Script" uid="uid://bsr344wq40tlo" path="res://scripts/game/components/combat/knockbackable_component.gd" id="28_ptijq"]
+[ext_resource type="Script" uid="uid://cgiif5lsyeju3" path="res://scenes/characters/enemy/mage/disengage_state.gd" id="30_disen"]
+[ext_resource type="Script" uid="uid://ddick5omjoqrp" path="res://scripts/game/components/animation/fade_animation_component.gd" id="31_fade"]
+[ext_resource type="PackedScene" uid="uid://7wtx4lfw3rxx" path="res://scenes/skills/magic_missile/magic_missile_skill.tscn" id="32_mmskl"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
+radius = 7.0
+height = 24.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ap80"]
+radius = 6.13303
+height = 22.9611
+
+[sub_resource type="GDScript" id="GDScript_vh0fs"]
+script/source = "extends NodeState
+
+@export var movement: MovementComponent
+@export var pathfinding: PathfindingComponent
+@export var sense: EnemySenseComponent
+@export var hurtbox: HurtboxComponent
+@export var health: HealthComponent
+@export var wobble_animation: WobbleAnimationComponent
+@export var separation: SeparationComponent
+@export var slot_seeker: Node  # SlotSeekerComponent
+
+@export_range(0.0, 1.0) var pathfinding_weight: float = 0.7
+@export_range(0.0, 1.0) var separation_weight: float = 0.3
+## Distance threshold to consider the enemy at its slot position
+@export var slot_arrival_distance: float = 10.0
+
+var got_hurt: bool = false
+var target: Node2D = null
+
+func _on_process(delta : float) -> void:
+	if got_hurt:
+		got_hurt = false
+		transition.emit(\"Hurt\")
+	if not movement or not pathfinding:
+		return
+
+	# Check if enemy has reached its slot position -> transition to Engage
+	if slot_seeker and slot_seeker.has_slot():
+		var slot_pos = slot_seeker.get_target_position()
+		var distance_to_slot = owner.global_position.distance_to(slot_pos)
+		if distance_to_slot <= slot_arrival_distance:
+			transition.emit(\"Engage\")
+			return
+
+	# Use slot position if available, otherwise direct chase with backstab targeting
+	var chase_target_pos: Vector2
+	if slot_seeker and slot_seeker.has_method(\"get_target_position\"):
+		chase_target_pos = slot_seeker.get_target_position()
+	elif target:
+		chase_target_pos = target.global_position
+		if target.get(\"facing\"):
+			chase_target_pos = target.facing.get_back_position(15.0)
+	else:
+		chase_target_pos = owner.global_position
+
+	pathfinding.set_target_position_throttled(chase_target_pos)
+
+	# Get pathfinding direction
+	var path_direction = pathfinding.get_target_direction()
+
+	# Get separation direction
+	var separation_direction = Vector2.ZERO
+	if separation:
+		separation_direction = separation.get_separation_vector()
+
+	# Blend directions with weights
+	var final_direction = Vector2.ZERO
+	if path_direction != Vector2.ZERO or separation_direction != Vector2.ZERO:
+		final_direction = (
+			path_direction * pathfinding_weight +
+			separation_direction * separation_weight
+		).normalized()
+
+	# Update wobble animation
+	if wobble_animation:
+		var player_pos = target.global_position if target else Vector2.ZERO
+		wobble_animation.play(delta, final_direction, player_pos)
+
+	movement.set_velocity(final_direction)
+
+func _on_physics_process(_delta : float) -> void:
+	pass
+
+func _on_next_transitions() -> void:
+	pass
+
+func _on_enter() -> void:
+	_connect_sense()
+	target = sense.current_target
+	_connect_hurtbox()
+	_connect_health()
+
+	# Request a slot around the target
+	if slot_seeker and target and slot_seeker.has_method(\"request_slot_for_target\"):
+		slot_seeker.request_slot_for_target(target)
+
+func _on_exit() -> void:
+	movement.set_velocity(Vector2.ZERO)
+	if wobble_animation:
+		wobble_animation.reset()
+	_disconnect_hurtbox()
+	_disconnect_health()
+	_disconnect_sense()
+
+
+func _connect_hurtbox() -> void:
+	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.connect(_on_hurt)
+
+func _on_hurt(amount) -> void:
+	# Damage is already applied by HurtboxComponent
+	got_hurt = true
+
+func _disconnect_hurtbox() -> void:
+	if hurtbox and hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.disconnect(_on_hurt)
+
+func _connect_health() -> void:
+	if health and not health.died.is_connected(_on_death):
+		health.died.connect(_on_death)
+
+func _on_death() -> void:
+	transition.emit(\"Death\")
+
+func _disconnect_health() -> void:
+	if health and health.died.is_connected(_on_death):
+		health.died.disconnect(_on_death)
+
+func _connect_sense() -> void:
+	if sense and not sense.is_connected(\"target_lost\", _on_target_lost):
+		sense.connect(\"target_lost\", Callable(self, \"_on_target_lost\"))
+
+func _on_target_lost(lost_target):
+	if lost_target == target:
+		target = null
+		transition.emit(\"Idle\")
+
+func _disconnect_sense() -> void:
+	if sense and sense.is_connected(\"target_lost\", _on_target_lost):
+		sense.disconnect(\"target_lost\", Callable(self, \"_on_target_lost\"))
+"
+
+[node name="Mage" type="CharacterBody2D"]
+position = Vector2(0, 2)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("CapsuleShape2D_vdd08")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(1, 0)
+texture = ExtResource("1_qmoh6")
+region_enabled = true
+region_rect = Rect2(160, 128, 32, 32)
+
+[node name="HurtboxComponent" type="Area2D" parent="Sprite2D" node_paths=PackedStringArray("health_component")]
+collision_layer = 32
+collision_mask = 4
+script = ExtResource("2_3bn6v")
+health_component = NodePath("../../HealthComponent")
+metadata/_custom_type_script = "uid://c5gmfinumygu4"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/HurtboxComponent"]
+position = Vector2(-1, 0)
+scale = Vector2(1.14136, 1.13235)
+shape = SubResource("CapsuleShape2D_0ap80")
+debug_color = Color(0.931449, 0.24244, 0.260464, 0.42)
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
+script = ExtResource("3_ssd48")
+initial_node_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurtbox", "sense", "health")]
+script = ExtResource("4_dpllv")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+sense = NodePath("../../EnemySenseComponent")
+health = NodePath("../../HealthComponent")
+
+[node name="Hurt" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurt_animation", "hurtbox")]
+script = ExtResource("5_mxuf0")
+hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+
+[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health", "knockbackable")]
+script = ExtResource("6_2slcd")
+down_animation = NodePath("../../DownAnimationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+
+[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state")]
+script = ExtResource("7_yci4p")
+stun_animation = NodePath("../../StunAnimationComponent")
+stun_bar = NodePath("../../StunBarComponent")
+health = NodePath("../../HealthComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+movement = NodePath("../../MovementComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+director_request = NodePath("../../CombatDirectorRequestComponent")
+down_state = NodePath("../Down")
+
+[node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
+script = SubResource("GDScript_vh0fs")
+movement = NodePath("../../MovementComponent")
+pathfinding = NodePath("../../PathfindingComponent")
+sense = NodePath("../../EnemySenseComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
+separation = NodePath("../../SeparationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
+
+[node name="Engage" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "sense", "hurtbox", "health", "wobble_animation", "slot_seeker")]
+script = ExtResource("8_6t47o")
+movement = NodePath("../../MovementComponent")
+sense = NodePath("../../EnemySenseComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
+slot_seeker = NodePath("../../SlotSeekerComponent")
+skill_paths = Array[NodePath]([NodePath("../../MagicMissileSkill/ProjectileSkillComponent")])
+
+[node name="Disengage" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
+script = ExtResource("30_disen")
+movement = NodePath("../../MovementComponent")
+sense = NodePath("../../EnemySenseComponent")
+separation = NodePath("../../SeparationComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+health = NodePath("../../HealthComponent")
+facing = NodePath("../../FacingComponent")
+wobble_animation = NodePath("../../WobbleAnimationComponent")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_desired_distance = 3.0
+target_desired_distance = 5.0
+path_postprocessing = 1
+
+[node name="EnemySenseComponent" type="Area2D" parent="."]
+collision_layer = 2
+script = ExtResource("9_g4q4c")
+detection_radius = 500.0
+metadata/_custom_type_script = "uid://blt8qxujohwor"
+
+[node name="PathfindingComponent" type="Node" parent="." node_paths=PackedStringArray("agent")]
+script = ExtResource("10_3jf7h")
+agent = NodePath("../NavigationAgent2D")
+metadata/_custom_type_script = "uid://dphatmavxn3u8"
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("character_body", "hurtbox")]
+script = ExtResource("11_dij8q")
+character_body = NodePath("..")
+hurtbox = NodePath("../Sprite2D/HurtboxComponent")
+move_speed = 10.0
+metadata/_custom_type_script = "uid://c7bsngihe1vew"
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("12_kphks")
+max_health = 15
+metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
+
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
+script = ExtResource("13_xld05")
+sprite = NodePath("../Sprite2D")
+facing = NodePath("../FacingComponent")
+
+[node name="HurtStaggerAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("14_adrdf")
+sprite = NodePath("../Sprite2D")
+metadata/_custom_type_script = "uid://echlin1jyex0"
+
+[node name="DownAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("15_ya8td")
+sprite = NodePath("../Sprite2D")
+
+[node name="StunAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("16_fj80u")
+sprite = NodePath("../Sprite2D")
+
+[node name="StunBarComponent" type="Node2D" parent="."]
+script = ExtResource("17_bf75d")
+
+[node name="SeparationComponent" type="Node" parent="."]
+script = ExtResource("18_tcfce")
+
+[node name="SlotSeekerComponent" type="Node" parent="."]
+script = ExtResource("19_n4hic")
+preferred_ring = "outer"
+
+[node name="FadeAnimationComponent" type="Node" parent="."]
+script = ExtResource("31_fade")
+
+[node name="DamageNumberComponent" type="Node2D" parent="." node_paths=PackedStringArray("hurtbox_component", "fade_animation_component")]
+script = ExtResource("21_da7h6")
+hurtbox_component = NodePath("../Sprite2D/HurtboxComponent")
+fade_animation_component = NodePath("../FadeAnimationComponent")
+font_size = 12
+
+[node name="DeathDropComponent" type="Node" parent="."]
+
+[node name="EnemyDamageComponent" type="Node2D" parent="."]
+script = ExtResource("22_wifjx")
+damage_amount = 1
+damage_cooldown = 0.25
+
+[node name="KillTrackerComponent" type="Node" parent="."]
+script = ExtResource("23_i4i1d")
+
+[node name="HitDropComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
+script = ExtResource("24_ogt13")
+health_component = NodePath("../HealthComponent")
+drop_scene = ExtResource("25_uymsl")
+drop_chance = 1.0
+max_drops = 3
+
+[node name="CombatDirectorRequestComponent" type="Node" parent="."]
+script = ExtResource("26_h7q4l")
+default_priority = 60
+
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("27_4w6ew")
+sprite = NodePath("../Sprite2D")
+
+[node name="MagicMissileSkill" parent="." instance=ExtResource("32_mmskl")]
+
+[node name="KnockbackableComponent" type="Node" parent="." node_paths=PackedStringArray("health", "state_machine")]
+script = ExtResource("28_ptijq")
+health = NodePath("../HealthComponent")
+state_machine = NodePath("../StateMachine")

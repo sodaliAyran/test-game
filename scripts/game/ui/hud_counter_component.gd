@@ -1,6 +1,8 @@
 class_name HUDCounterComponent
 extends Control
 
+var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
+
 ## Reusable HUD counter component for displaying icon + count
 ## Auto-connects to GameStats based on counter_type
 
@@ -55,6 +57,7 @@ func _setup_ui() -> void:
 	count_label = Label.new()
 	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count_label.add_theme_font_override("font", PIXEL_FONT)
 	count_label.add_theme_color_override("font_color", text_color)
 	count_label.add_theme_font_size_override("font_size", font_size)
 	count_label.add_theme_constant_override("shadow_offset_x", 1)

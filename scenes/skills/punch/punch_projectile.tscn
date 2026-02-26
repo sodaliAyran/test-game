@@ -1,0 +1,80 @@
+[gd_scene load_steps=10 format=3 uid="uid://b045d3a3ihe0c"]
+
+[ext_resource type="Texture2D" uid="uid://ddyaotda8mjow" path="res://assets/game/objects/Gemini_Generated_Image_9o5gmx9o5gmx9o5g-removebg-preview.png" id="1_texture"]
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="2_hitbox"]
+[ext_resource type="Script" uid="uid://b1nc5f36tlofw" path="res://scripts/game/skills/projectile/projectile_component.gd" id="3_projectile"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frame1"]
+atlas = ExtResource("1_texture")
+region = Rect2(588, 92, 84, 92)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frame2"]
+atlas = ExtResource("1_texture")
+region = Rect2(0, 184, 84, 92)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frame3"]
+atlas = ExtResource("1_texture")
+region = Rect2(84, 184, 84, 92)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frame4"]
+atlas = ExtResource("1_texture")
+region = Rect2(336, 184, 84, 92)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fly"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frame1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frame2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frame3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frame4")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
+radius = 18.0
+
+[node name="PunchProjectile" type="Area2D"]
+collision_layer = 0
+collision_mask = 32
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_fly")
+animation = &"fly"
+autoplay = "fly"
+
+[node name="ProjectileComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox")]
+script = ExtResource("3_projectile")
+speed = 50.0
+max_distance = 200.0
+lifetime = 3.0
+rotate_to_direction = false
+sprite = NodePath("../AnimatedSprite2D")
+hitbox = NodePath("../HitboxComponent")
+linger_time = 0.25
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 32
+script = ExtResource("2_hitbox")
+min_damage = 6
+max_damage = 10
+knockback = 80.0
+knockback_enabled = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+shape = SubResource("CircleShape2D_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_hitbox")

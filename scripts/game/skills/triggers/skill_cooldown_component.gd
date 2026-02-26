@@ -22,9 +22,8 @@ func _ready() -> void:
 	# Listen for skill changes to update cooldown
 	if skill_modifier:
 		if SkillManager:
-			SkillManager.skill_unlocked.connect(_on_skills_changed)
-			SkillManager.skill_locked.connect(_on_skills_changed)
-			SkillManager.skills_reset.connect(_on_skills_changed)
+			SkillManager.skill_changed.connect(_on_skills_changed)
+			SkillManager.skills_reset.connect(_on_skills_reset)
 
 
 func _setup_timer() -> void:
@@ -50,12 +49,17 @@ func _on_timer_timeout() -> void:
 func _get_modified_cooldown() -> float:
 	if skill_modifier:
 		var speed_mult = skill_modifier.get_attack_speed_multiplier()
+		var cdr = skill_modifier.get_cooldown_reduction()
 		if speed_mult > 0:
-			return _base_cooldown / speed_mult
+			return _base_cooldown / speed_mult * (1.0 - cdr)
 	return _base_cooldown
 
 
-func _on_skills_changed(_skill_id: String = "") -> void:
+func _on_skills_reset() -> void:
+	_on_skills_changed()
+
+
+func _on_skills_changed(_skill_id: String = "", _new_level: int = 0) -> void:
 	# Update timer wait time if currently on cooldown
 	if _timer and not _timer.is_stopped():
 		var remaining_ratio = _timer.time_left / _timer.wait_time

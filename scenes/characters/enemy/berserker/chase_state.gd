@@ -54,6 +54,7 @@ func _on_next_transitions() -> void:
 	pass
 
 func _on_enter() -> void:
+	got_hurt = false
 	target = sense.current_target
 	_connect_sense()
 	_connect_hurtbox()

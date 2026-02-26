@@ -1,6 +1,8 @@
 class_name TextBubbleComponent
 extends Node2D
 
+var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
+
 ## Component that displays text bubbles above entities with randomized triggering
 ## Designed for enemy dialogue with future nemesis system support
 
@@ -27,7 +29,7 @@ enum TriggerType {
 @export var trigger_on_hurt: bool = false
 
 ## How long the bubble stays visible (seconds)
-@export var display_duration: float = 3.0
+@export var display_duration: float = 1.5
 
 ## Vertical offset above the entity
 @export var vertical_offset: float = -40.0
@@ -37,13 +39,13 @@ enum TriggerType {
 @export var bubble_color: Color = Color(0.1, 0.1, 0.1, 0.9)
 @export var border_color: Color = Color.WHITE
 @export var border_width: int = 2
-@export var corner_radius: int = 8
-@export var padding: Vector2 = Vector2(12, 8)
+@export var corner_radius: int = 4
+@export var padding: Vector2 = Vector2(6, 4)
 
 ## Text styling
 @export_group("Text Style")
 @export var text_color: Color = Color.WHITE
-@export var font_size: int = 14
+@export var font_size: int = 8
 
 ## Animation component for fade effects
 @export var fade_animation_component: FadeAnimationComponent
@@ -147,6 +149,7 @@ func _show_bubble(text: String) -> void:
 	# Create label
 	var label = Label.new()
 	label.text = text
+	label.add_theme_font_override("font", PIXEL_FONT)
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", text_color)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

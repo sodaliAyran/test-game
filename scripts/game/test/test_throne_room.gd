@@ -7,49 +7,33 @@ extends Node2D
 
 
 func _ready() -> void:
-	# Connect to wave spawner signals
 	if wave_spawner:
-		wave_spawner.wave_started.connect(_on_wave_started)
-		wave_spawner.wave_completed.connect(_on_wave_completed)
 		wave_spawner.enemy_spawned.connect(_on_enemy_spawned)
-		wave_spawner.all_enemies_defeated.connect(_on_all_enemies_defeated)
-		
+		wave_spawner.schedule_completed.connect(_on_schedule_completed)
 		_update_ui()
 
 
 func _update_ui() -> void:
 	if wave_spawner and wave_info_label:
-		var wave_num = wave_spawner.get_current_wave()
-		var enemy_count = wave_spawner.get_active_enemy_count()
-		var remaining_spawns = wave_spawner.get_remaining_spawns()
-		
-		wave_info_label.text = "Wave: %d\nEnemies: %d" % [wave_num, enemy_count + remaining_spawns]
+		var elapsed: float = wave_spawner.get_elapsed_time()
+		@warning_ignore("integer_division")
+		var minutes: int = int(elapsed) / 60
+		var seconds: int = int(elapsed) % 60
+		var enemy_count: int = wave_spawner.get_active_enemy_count()
+		wave_info_label.text = "Time: %d:%02d\nEnemies: %d" % [minutes, seconds, enemy_count]
 
 
-func _on_wave_started(wave_number: int, enemy_count: int) -> void:
-	print("Wave %d started! Spawning %d enemies" % [wave_number, enemy_count])
-	_update_ui()
-
-
-func _on_wave_completed(wave_number: int) -> void:
-	print("Wave %d completed!" % wave_number)
-	_update_ui()
-
-
-func _on_enemy_spawned(enemy: Node2D) -> void:
-	# Add player to the "Player" group if not already
+func _on_enemy_spawned(_enemy: Node2D) -> void:
 	var player = get_node_or_null("Warrior")
 	if player and not player.is_in_group("Player"):
 		player.add_to_group("Player")
-	
 	_update_ui()
 
 
-func _on_all_enemies_defeated() -> void:
-	print("All enemies defeated! Next wave incoming...")
+func _on_schedule_completed() -> void:
+	print("Spawn schedule completed!")
 	_update_ui()
 
 
 func _process(_delta: float) -> void:
-	# Update UI every frame to keep enemy count accurate
 	_update_ui()

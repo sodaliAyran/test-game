@@ -34,6 +34,7 @@ func _on_enter() -> void:
 		if node:
 			_skills.append(node)
 
+	_activate_skills()
 	_connect_hurtbox()
 	_connect_health()
 	_connect_sense()
@@ -58,8 +59,12 @@ func _on_process(delta: float) -> void:
 		transition.emit("Chase")
 		return
 
-	# Hold position at slot
-	_move_to_slot(delta)
+	# Stop movement during windup, otherwise hold position at slot
+	if _any_skill_winding_up():
+		if movement:
+			movement.set_velocity(Vector2.ZERO)
+	else:
+		_move_to_slot(delta)
 
 	# Check ring and act accordingly
 	if slot_seeker and slot_seeker.is_in_inner_ring():
@@ -83,6 +88,7 @@ func _on_exit() -> void:
 		wobble_animation.reset()
 
 	_cancel_all_pending()
+	_deactivate_skills()
 	_disconnect_hurtbox()
 	_disconnect_health()
 	_disconnect_sense()
@@ -133,6 +139,25 @@ func _outer_ring_behavior(_delta: float) -> void:
 	pass
 
 
+func _any_skill_winding_up() -> bool:
+	for skill in _skills:
+		if skill.has_method("is_winding_up") and skill.is_winding_up():
+			return true
+	return false
+
+
+func _activate_skills() -> void:
+	for skill in _skills:
+		if skill.has_method("activate"):
+			skill.activate()
+
+
+func _deactivate_skills() -> void:
+	for skill in _skills:
+		if skill.has_method("deactivate"):
+			skill.deactivate()
+
+
 func _cancel_all_pending() -> void:
 	for skill in _skills:
 		if skill.has_method("cancel_pending_request"):
@@ -179,14 +204,18 @@ func _disconnect_sense() -> void:
 func _connect_skills() -> void:
 	for skill in _skills:
 		if skill is DashComponent:
-			if not skill.dash_started.is_connected(_on_dash_started):
-				skill.dash_started.connect(_on_dash_started)
+			if not skill.windup_finished.is_connected(_on_windup_finished):
+				skill.windup_finished.connect(_on_windup_finished)
 
-func _on_dash_started(_direction: Vector2) -> void:
+func _on_windup_finished(direction: Vector2) -> void:
+	# Pass direction to Dash state before transitioning
+	var dash_state = get_parent().get_node_or_null("Dash")
+	if dash_state and dash_state.has_method("set_dash_direction"):
+		dash_state.set_dash_direction(direction)
 	transition.emit("Dash")
 
 func _disconnect_skills() -> void:
 	for skill in _skills:
 		if skill is DashComponent:
-			if skill.dash_started.is_connected(_on_dash_started):
-				skill.dash_started.disconnect(_on_dash_started)
+			if skill.windup_finished.is_connected(_on_windup_finished):
+				skill.windup_finished.disconnect(_on_windup_finished)

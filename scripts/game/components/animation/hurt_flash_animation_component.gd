@@ -7,7 +7,7 @@ extends Node
 signal flash_complete()
 
 @export var sprite: Sprite2D
-@export var flash_color: Color = Color(1.0, 0.3, 0.3, 1.0)  # Red tint
+@export var flash_color: Color = Color.WHITE
 @export var flash_duration: float = 0.1
 @export var num_flashes: int = 1
 

@@ -27,9 +27,16 @@ func _find_facing_component() -> void:
 		var found = node.find_child("FacingComponent", false, false)
 		if found and found is FacingComponent:
 			facing = found
+			facing.facing_changed.connect(_on_facing_changed)
+			# Set initial position
+			_set_weapon_direction()
 			return
 		node = node.get_parent()
 	push_warning("DirectionalWeaponComponent: Could not find FacingComponent in parent hierarchy")
+
+
+func _on_facing_changed(_new_direction: Vector2) -> void:
+	_set_weapon_direction()
 
 func _setup_hit_timer() -> void:
 	_hit_timer = Timer.new()
@@ -43,9 +50,9 @@ func _connect_to_weapon_component() -> void:
 	if weapon_component:
 		weapon_component.attack_started.connect(_on_attack_started)
 	else:
-		print("DirectionalWeaponComponent: WARNING - weapon_component not set!")
+		push_warning("DirectionalWeaponComponent: weapon_component not set!")
 
-func _on_attack_started() -> void:
+func _on_attack_started(_target: Node2D = null) -> void:
 	# Get multi-hit count from skills
 	if skill_modifier:
 		_total_hits = skill_modifier.get_multi_hit_count()
@@ -56,8 +63,6 @@ func _on_attack_started() -> void:
 	_current_hit_index = 0
 	_is_front_attack = true
 	_set_weapon_direction()
-	
-	print("DEBUG: Starting attack sequence, total hits: %d" % _total_hits)
 	
 	# If multi-hit is active, disconnect signal to prevent interference
 	if _total_hits > 1:
@@ -77,8 +82,6 @@ func _on_hit_timer_timeout() -> void:
 	
 	# Alternate between front and back attacks
 	_is_front_attack = (_current_hit_index % 2 == 0)
-	
-	print("DEBUG: Hit %d/%d, is_front_attack: %s" % [_current_hit_index, _total_hits, _is_front_attack])
 	
 	# Set weapon direction for this hit
 	_set_weapon_direction()

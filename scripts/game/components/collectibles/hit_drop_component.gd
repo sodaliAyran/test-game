@@ -49,19 +49,38 @@ func _on_health_changed(current: int, _max: int) -> void:
 	if _cooldown_timer > 0:
 		return
 
-	# Check drop chance
-	if randf() > drop_chance:
+	# Check drop chance (with passive bonus)
+	var effective_drop_chance = drop_chance
+	if SkillManager:
+		effective_drop_chance = clampf(drop_chance + SkillManager.get_passive_float("drop_chance_bonus"), 0.0, 1.0)
+	if randf() > effective_drop_chance:
 		return
 
 	# Reset cooldown
 	_cooldown_timer = cooldown
 
-	# Determine how many to drop
-	var drop_count = randi_range(min_drops, max_drops)
+	# Determine how many to drop (with passive bonus)
+	var effective_max_drops = max_drops
+	if SkillManager:
+		effective_max_drops += SkillManager.get_passive_int("extra_drops")
+	var drop_count = _weighted_drop_count(min_drops, effective_max_drops)
 
 	# Spawn drops
 	for i in range(drop_count):
 		_spawn_drop()
+
+func _weighted_drop_count(min_count: int, max_count: int) -> int:
+	"""Weighted random drop count - lower counts are much more likely.
+	Weights: 1 = 70%, 2 = 20%, 3+ = 10% (split evenly among higher values)."""
+	if min_count >= max_count:
+		return min_count
+	var roll = randf()
+	if roll < 0.7:
+		return min_count
+	elif roll < 0.9:
+		return mini(min_count + 1, max_count)
+	else:
+		return max_count
 
 func _spawn_drop() -> void:
 	"""Spawn a single drop at the owner's position with fountain animation."""

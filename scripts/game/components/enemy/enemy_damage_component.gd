@@ -18,8 +18,8 @@ var overlapping_hurtboxes: Array[HurtboxComponent] = []
 func _ready() -> void:
 	# Create Area2D for collision detection
 	damage_area = Area2D.new()
-	damage_area.collision_layer = 0  # Don't be on any layer
-	damage_area.collision_mask = 16  # Detect player hurtbox (layer 16)
+	damage_area.collision_layer = 0
+	damage_area.collision_mask = CollisionLayers.PLAYER_HURTBOX
 	add_child(damage_area)
 	
 	# Create collision shape

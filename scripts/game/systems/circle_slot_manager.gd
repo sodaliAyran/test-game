@@ -10,9 +10,9 @@ signal promoted_to_inner(enemy: Node2D)
 signal moved_to_recovery(enemy: Node2D)
 
 # Ring Configuration
-@export var inner_ring_radius: float = 60.0
-@export var outer_ring_radius: float = 120.0
-@export var recovery_zone_radius: float = 150.0
+@export var inner_ring_radius: float = 45.0
+@export var outer_ring_radius: float = 90.0
+@export var recovery_zone_radius: float = 120.0
 @export var inner_slot_count: int = 6
 @export var outer_slot_count: int = 12
 
@@ -139,15 +139,15 @@ func request_slot(enemy: Node2D, target: Node2D, preferred_ring: String = "inner
 	var data: TargetData = _targets[target_id]
 	var assigned_slot: SlotData = null
 
-	# Try preferred ring first
+	# Try preferred ring first, finding nearest empty slot to the enemy
 	if preferred_ring == "inner":
-		assigned_slot = _find_empty_slot(data.inner_slots)
+		assigned_slot = _find_nearest_empty_slot(data.inner_slots, data, enemy.global_position)
 		if assigned_slot == null:
-			assigned_slot = _find_empty_slot(data.outer_slots)
+			assigned_slot = _find_nearest_empty_slot(data.outer_slots, data, enemy.global_position)
 	else:
-		assigned_slot = _find_empty_slot(data.outer_slots)
+		assigned_slot = _find_nearest_empty_slot(data.outer_slots, data, enemy.global_position)
 		if assigned_slot == null:
-			assigned_slot = _find_empty_slot(data.inner_slots)
+			assigned_slot = _find_nearest_empty_slot(data.inner_slots, data, enemy.global_position)
 
 	if assigned_slot == null:
 		return false  # No slots available
@@ -327,6 +327,28 @@ func _find_empty_slot(slots: Array[SlotData]) -> SlotData:
 	return null
 
 
+## Find nearest empty slot to enemy position
+func _find_nearest_empty_slot(slots: Array[SlotData], target_data: TargetData, enemy_pos: Vector2) -> SlotData:
+	var best_slot: SlotData = null
+	var best_distance: float = INF
+
+	for slot in slots:
+		if slot.is_occupied():
+			continue
+
+		# Calculate slot world position
+		var radius = inner_ring_radius if slot.ring == "inner" else outer_ring_radius
+		var angle = slot.base_angle + target_data.rotation_offset
+		var slot_pos = target_data.target.global_position + Vector2(cos(angle), sin(angle)) * radius
+
+		var distance = enemy_pos.distance_squared_to(slot_pos)
+		if distance < best_distance:
+			best_distance = distance
+			best_slot = slot
+
+	return best_slot
+
+
 ## Calculate priority score for an enemy
 func _calculate_priority(enemy: Node2D, target: Node2D) -> float:
 	var score = 50.0  # Base priority
@@ -374,6 +396,11 @@ func _process_promotions() -> void:
 			if assignment.target != data.target:
 				continue
 			if assignment.slot == null or assignment.slot.ring != "outer":
+				continue
+
+			# Skip enemies that prefer the outer ring (e.g. ranged mages)
+			var slot_seeker = assignment.enemy.get_node_or_null("SlotSeekerComponent")
+			if slot_seeker and slot_seeker.preferred_ring == "outer":
 				continue
 
 			# Calculate score with wait time bonus

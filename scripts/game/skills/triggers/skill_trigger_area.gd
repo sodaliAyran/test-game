@@ -1,17 +1,16 @@
 class_name SkillTriggerArea
 extends Area2D
 
-## Area2D-based trigger for skills/weapons. Fires weapon when valid targets enter
-## the detection area and optional conditions are met (cone direction, cooldown).
-## Works for both player and enemy weapons.
+## Area2D-based trigger for skills. Emits signal when valid targets are in range
+## and conditions are met (cone direction, cooldown).
+## Works for both player and enemy skills (weapons, projectiles, etc.).
 ## Uses signals for efficient detection - no per-frame polling.
 
 signal targets_changed
-signal attack_triggered
+signal attack_triggered  ## Emitted when trigger conditions are met - skill should respond
 
 @export var detection_radius: float = 80.0
 @export var target_group: String = ""  ## Optional group filter. If empty, uses collision mask only.
-@export var weapon: WeaponComponent
 @export var cooldown: Node  ## SkillCooldownComponent - optional cooldown manager
 
 @export_group("Direction Filter")
@@ -67,7 +66,7 @@ func _draw() -> void:
 	if require_direction:
 		var direction = _get_direction()
 		if direction != Vector2.ZERO:
-			var color = debug_color_ready if _is_weapon_ready() and _has_valid_target() else debug_color_cone
+			var color = debug_color_ready if _is_ready() and _has_valid_target() else debug_color_cone
 			_draw_cone(direction, color)
 
 
@@ -144,9 +143,9 @@ func _on_facing_changed(_new_direction: Vector2) -> void:
 func _try_trigger() -> void:
 	if not _has_valid_target():
 		return
-	if not _is_weapon_ready():
+	if not _is_ready():
 		return
-	_trigger_weapon()
+	_trigger()
 
 
 func _has_valid_target() -> bool:
@@ -186,18 +185,16 @@ func _get_direction() -> Vector2:
 	return Vector2.ZERO
 
 
-func _is_weapon_ready() -> bool:
+func _is_ready() -> bool:
 	if cooldown:
 		return cooldown.is_ready
 	return true  # No cooldown = always ready
 
 
-func _trigger_weapon() -> void:
-	if weapon:
-		weapon.trigger_attack()
+func _trigger() -> void:
+	attack_triggered.emit()
 	if cooldown:
 		cooldown.start_cooldown()
-	attack_triggered.emit()
 
 
 func set_detection_radius(new_radius: float) -> void:

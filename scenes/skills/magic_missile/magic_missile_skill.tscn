@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://7wtx4lfw3rxx"]
+
+[ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/skills/modifiers/skill_modifier_component.gd" id="1_2jngy"]
+[ext_resource type="Script" uid="uid://b3rwgaw23bwga" path="res://scripts/game/skills/triggers/skill_cooldown_component.gd" id="2_v8knd"]
+[ext_resource type="Script" uid="uid://q8jjmgp243sc" path="res://scripts/game/skills/projectile/projectile_skill_component.gd" id="3_cqb36"]
+[ext_resource type="PackedScene" uid="uid://d2xi4qow7loip" path="res://scenes/skills/magic_missile/magic_missile_projectile.tscn" id="4_1ybr5"]
+
+[node name="MagicMissileSkill" type="Node2D"]
+
+[node name="SkillModifierComponent" type="Node" parent="."]
+script = ExtResource("1_2jngy")
+
+[node name="SkillCooldownComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier")]
+script = ExtResource("2_v8knd")
+cooldown_time = 1.5
+skill_modifier = NodePath("../SkillModifierComponent")
+
+[node name="ProjectileSkillComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier", "cooldown")]
+script = ExtResource("3_cqb36")
+skill_modifier = NodePath("../SkillModifierComponent")
+cooldown = NodePath("../SkillCooldownComponent")
+projectile_scene = ExtResource("4_1ybr5")
+action_label = "magic_missile"

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bwqj8k2f5rmv4"]
+
+[ext_resource type="Script" path="res://scripts/game/ui/skill_panel.gd" id="1_skill_panel"]
+
+[node name="SkillPanel" type="Control"]
+custom_minimum_size = Vector2(120, 160)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_skill_panel")

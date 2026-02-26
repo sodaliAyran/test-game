@@ -41,6 +41,7 @@ func _on_next_transitions() -> void:
 	pass
 
 func _on_enter() -> void:
+	got_hurt = false
 	target = sense.current_target
 	time_since_last_attack = attack_cooldown  # Ready to attack immediately
 	# Stop all movement when entering attack state

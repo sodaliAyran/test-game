@@ -1,13 +1,14 @@
-[gd_scene load_steps=4 format=4 uid="uid://kb51agk4ckf8"]
+[gd_scene load_steps=6 format=4 uid="uid://kb51agk4ckf8"]
 
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="1_sh421"]
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="1_tileset"]
 [ext_resource type="Script" uid="uid://c7fhn172q3x28" path="res://scripts/game/world/procedural_world.gd" id="2_world"]
+[ext_resource type="PackedScene" uid="uid://cwldhwq50we3a" path="res://scenes/ui/level_up_screen.tscn" id="3_level_up_screen"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over_screen.tscn" id="4_game_over_screen"]
 
 [node name="TestProceduralWorld" type="Node2D"]
 
 [node name="Warrior" parent="." instance=ExtResource("1_sh421")]
-z_index = 1
 position = Vector2(210, 50)
 
 [node name="Camera2D" type="Camera2D" parent="Warrior"]
@@ -34,3 +35,7 @@ theme_override_font_sizes/font_size = 14
 text = "Chunk-Based Procedural World
 Chunk Size: 16x16 tiles
 Load Radius: 2 chunks"
+
+[node name="LevelUpScreen" parent="." instance=ExtResource("3_level_up_screen")]
+
+[node name="GameOverScreen" parent="." instance=ExtResource("4_game_over_screen")]

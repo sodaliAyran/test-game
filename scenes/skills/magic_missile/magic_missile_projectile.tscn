@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://d2xi4qow7loip"]
+
+[ext_resource type="Script" uid="uid://b1nc5f36tlofw" path="res://scripts/game/skills/projectile/projectile_component.gd" id="1_1dggj"]
+[ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_v6ytx"]
+[ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="2_gdh0f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_arrow"]
+size = Vector2(7.73438, 6.375)
+
+[node name="MagicMissileProjectile" type="Area2D"]
+z_index = 3
+collision_layer = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_v6ytx")
+region_enabled = true
+region_rect = Rect2(64, 800, 32, 32)
+
+[node name="ProjectileComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox")]
+script = ExtResource("1_1dggj")
+speed = 50.0
+max_distance = 600.0
+lifetime = 3.0
+sprite = NodePath("../Sprite2D")
+hitbox = NodePath("../HitboxComponent")
+impact_particles_enabled = true
+impact_particle_color = Color(0.6, 0.3, 1, 1)
+
+[node name="HitboxComponent" type="Area2D" parent="."]
+script = ExtResource("2_gdh0f")
+knockback = 50.0
+knockback_enabled = true
+hitbox_collision_layer = 8
+hitbox_collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
+position = Vector2(-0.867188, 1)
+shape = SubResource("RectangleShape2D_arrow")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 1)
+shape = SubResource("RectangleShape2D_arrow")

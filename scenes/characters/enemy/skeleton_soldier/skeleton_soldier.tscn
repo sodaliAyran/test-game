@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://dlo1nlqynryso"]
+[gd_scene load_steps=42 format=3 uid="uid://dlo1nlqynryso"]
 
 [ext_resource type="Texture2D" uid="uid://rvx086akqwj1" path="res://assets/game/characters/monsters.png" id="1_siti5"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_lklkc"]
@@ -35,6 +35,10 @@
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="32_facing"]
 [ext_resource type="Script" uid="uid://bruawf05tyucn" path="res://scenes/characters/enemy/skeleton_soldier/engage_state.gd" id="33_engage"]
 [ext_resource type="Script" uid="uid://13ftg7c0uyf3" path="res://scenes/characters/enemy/skeleton_soldier/attack_state.gd" id="34_attack"]
+[ext_resource type="Script" uid="uid://bsr344wq40tlo" path="res://scripts/game/components/combat/knockbackable_component.gd" id="35_knockbackable"]
+[ext_resource type="Script" uid="uid://0lqocve43ixa" path="res://scripts/game/states/enemy/stunned_state.gd" id="36_stunned"]
+[ext_resource type="Script" uid="uid://cdahn5s3sfw2m" path="res://scripts/game/components/animation/stun_animation_component.gd" id="37_stun_anim"]
+[ext_resource type="Script" uid="uid://dbo5bimjy5wbg" path="res://scripts/game/components/ui/stun_bar_component.gd" id="38_stun_bar"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 11.0
@@ -91,11 +95,22 @@ script = ExtResource("6_61nds")
 hurt_animation = NodePath("../../HurtStaggerAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 
-[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health")]
+[node name="Down" type="Node" parent="StateMachine" node_paths=PackedStringArray("down_animation", "hurtbox", "health", "knockbackable")]
 script = ExtResource("6_down")
 down_animation = NodePath("../../DownAnimationComponent")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+
+[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "down_state")]
+script = ExtResource("36_stunned")
+stun_animation = NodePath("../../StunAnimationComponent")
+stun_bar = NodePath("../../StunBarComponent")
+health = NodePath("../../HealthComponent")
+hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
+movement = NodePath("../../MovementComponent")
+knockbackable = NodePath("../../KnockbackableComponent")
+down_state = NodePath("../Down")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = ExtResource("7_1mn2y")
@@ -193,6 +208,13 @@ metadata/_custom_type_script = "uid://echlin1jyex0"
 script = ExtResource("6_down_anim")
 sprite = NodePath("../Sprite2D")
 
+[node name="StunAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("37_stun_anim")
+sprite = NodePath("../Sprite2D")
+
+[node name="StunBarComponent" type="Node2D" parent="."]
+script = ExtResource("38_stun_bar")
+
 [node name="SeparationComponent" type="Node" parent="."]
 script = ExtResource("17_separation")
 
@@ -233,8 +255,14 @@ traits = Array[ExtResource("28_lwnh4")]([ExtResource("26_coward")])
 script = ExtResource("30_b28m2")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("21_coin")
+drop_chance = 1.0
 max_drops = 3
 
 [node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("32_facing")
 sprite = NodePath("../Sprite2D")
+
+[node name="KnockbackableComponent" type="Node" parent="." node_paths=PackedStringArray("health", "state_machine")]
+script = ExtResource("35_knockbackable")
+health = NodePath("../HealthComponent")
+state_machine = NodePath("../StateMachine")

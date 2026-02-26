@@ -1,6 +1,8 @@
 class_name DamageNumberComponent
 extends Node2D
 
+var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
+
 @export var hurtbox_component: HurtboxComponent
 @export var fade_animation_component: FadeAnimationComponent
 @export var float_speed: float = 30.0  # Pixels per second upward
@@ -36,6 +38,7 @@ func _spawn_damage_number(damage: int) -> void:
 	# Create the label
 	var label = Label.new()
 	label.text = str(damage)
+	label.add_theme_font_override("font", PIXEL_FONT)
 	label.add_theme_font_size_override("font_size", font_size)
 	label.modulate = damage_color
 	

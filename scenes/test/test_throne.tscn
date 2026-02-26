@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="2_ab5jm"]
 [ext_resource type="PackedScene" uid="uid://by03jig1c7tnm" path="res://scenes/test/wave_spawner.tscn" id="3_4gvio"]
 [ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="3_d51gy"]
-[ext_resource type="PackedScene" uid="uid://dlo1nlqynryso" path="res://scenes/characters/enemy/skeleton_soldier/skeleton_soldier.tscn" id="4_vw0th"]
+[ext_resource type="Resource" path="res://resources/timelines/throne_room_schedule.tres" id="4_throne_schedule"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="6_4gvio"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_ab5jm"]
@@ -27,10 +27,7 @@ tile_set = ExtResource("1_d51gy")
 [node name="Sword" parent="Warrior" instance=ExtResource("3_d51gy")]
 
 [node name="WaveSpawner" parent="." instance=ExtResource("3_4gvio")]
-enemy_scene = ExtResource("4_vw0th")
-initial_enemy_count = 50
-enemies_per_wave_increase = 15
-wave_delay = null
+schedule = ExtResource("4_throne_schedule")
 spawn_interval = null
 auto_start = null
 

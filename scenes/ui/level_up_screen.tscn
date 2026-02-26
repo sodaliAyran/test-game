@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cwldhwq50we3a"]
+
+[ext_resource type="Script" uid="uid://td8ufvr8uetv" path="res://scripts/game/ui/level_up_screen.gd" id="1_level_up_screen"]
+[ext_resource type="PackedScene" uid="uid://bwqj8k2f5rmv4" path="res://scenes/ui/skill_panel.tscn" id="2_skill_panel"]
+
+[node name="LevelUpScreen" type="CanvasLayer"]
+process_mode = 3
+layer = 100
+script = ExtResource("1_level_up_screen")
+skill_panel_scene = ExtResource("2_skill_panel")
