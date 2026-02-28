@@ -12,8 +12,9 @@ script = ExtResource("1_2jngy")
 
 [node name="SkillCooldownComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier")]
 script = ExtResource("2_v8knd")
-cooldown_time = 1.5
+cooldown_time = 3.0
 skill_modifier = NodePath("../SkillModifierComponent")
+skill_id = "magic_missile"
 
 [node name="ProjectileSkillComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier", "cooldown")]
 script = ExtResource("3_cqb36")

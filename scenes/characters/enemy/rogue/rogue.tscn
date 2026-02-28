@@ -3,12 +3,9 @@
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vh0fs"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_f4dwc"]
 [ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="3_ftcjs"]
-[ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/skeleton_soldier/idle_state.gd" id="4_qvi1n"]
 [ext_resource type="Script" uid="uid://bkalfexdm6mfi" path="res://scripts/game/states/enemy/hurt_state.gd" id="5_4ayy1"]
 [ext_resource type="Script" uid="uid://0nia7tc4g617" path="res://scripts/game/states/enemy/down_state.gd" id="5_down"]
 [ext_resource type="Script" uid="uid://ba75h6leyutgo" path="res://scripts/game/components/animation/down_animation_component.gd" id="5_down_anim"]
-[ext_resource type="Script" uid="uid://csnsynjeksolq" path="res://scenes/characters/enemy/skeleton_soldier/flee_state.gd" id="7_qalk0"]
-[ext_resource type="Script" uid="uid://cu8mashyovlri" path="res://scenes/characters/enemy/skeleton_soldier/death_state.gd" id="8_tkq6p"]
 [ext_resource type="Script" uid="uid://blt8qxujohwor" path="res://scripts/game/components/enemy/enemy_sense_component.gd" id="9_u7k36"]
 [ext_resource type="Script" uid="uid://dphatmavxn3u8" path="res://scripts/game/components/enemy/pathfinding_component.gd" id="10_htvth"]
 [ext_resource type="Script" uid="uid://c7bsngihe1vew" path="res://scripts/game/components/core/movement_component.gd" id="11_a0cnn"]
@@ -46,6 +43,77 @@ height = 24.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ap80"]
 radius = 6.13303
 height = 22.9611
+
+[sub_resource type="GDScript" id="GDScript_ubqcu"]
+script/source = "extends NodeState
+
+@export var hurtbox: HurtboxComponent
+@export var sense: EnemySenseComponent
+@export var health: HealthComponent
+
+var got_hurt: bool = false
+var target_acquired_callable: Callable
+
+func _on_process(_delta : float) -> void:
+	if got_hurt:
+		got_hurt = false
+		transition.emit(\"Hurt\")
+	if sense.current_target:
+		_on_target_acquired(sense.current_target)
+
+func _on_physics_process(_delta : float) -> void:
+	pass
+
+func _on_next_transitions() -> void:
+	pass
+
+func _on_enter() -> void:
+	got_hurt = false
+	_connect_hurtbox()
+	_connect_health()
+	_connect_enemy_sense()
+	
+func _on_exit() -> void:
+	_disconnect_health()
+	_disconnect_hurtbox()
+	_disconnect_enemy_sense()
+	
+func _connect_health() -> void:
+	if health and not health.died.is_connected(_on_death):
+		health.died.connect(_on_death)
+		
+func _on_death() -> void:
+	transition.emit(\"Death\")
+	
+func _disconnect_health() -> void:
+	if health and health.died.is_connected(_on_death):
+		health.died.disconnect(_on_death)
+
+func _connect_hurtbox() -> void:
+	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.connect(_on_hurt)
+
+func _on_hurt(amount) -> void:
+	# Damage is already applied by HurtboxComponent
+	got_hurt = true
+
+func _disconnect_hurtbox() -> void:
+	if hurtbox and hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.disconnect(_on_hurt)
+
+func _connect_enemy_sense() -> void:
+	if sense:
+		target_acquired_callable = Callable(self, \"_on_target_acquired\")
+		if not sense.is_connected(\"target_acquired\", target_acquired_callable):
+			sense.connect(\"target_acquired\", target_acquired_callable)
+	
+func _on_target_acquired(target: Node2D) -> void:
+	transition.emit(\"Chase\")
+	
+func _disconnect_enemy_sense() -> void:
+	if sense and target_acquired_callable and sense.is_connected(\"target_acquired\", target_acquired_callable):
+		sense.disconnect(\"target_acquired\", target_acquired_callable)
+"
 
 [sub_resource type="GDScript" id="GDScript_vh0fs"]
 script/source = "extends NodeState
@@ -180,6 +248,126 @@ func _disconnect_sense() -> void:
 		sense.disconnect(\"target_lost\", Callable(self, \"_on_target_lost\"))
 "
 
+[sub_resource type="GDScript" id="GDScript_k40e0"]
+script/source = "extends NodeState
+
+## State where enemy flees from player
+## Enemies can be hurt while fleeing - transitions to Hurt then back to Flee
+
+@export var movement: MovementComponent
+@export var pathfinding: PathfindingComponent
+@export var sense: EnemySenseComponent
+@export var separation: SeparationComponent
+@export var hurtbox: HurtboxComponent
+@export var health: HealthComponent
+@export var facing: FacingComponent
+@export var wobble_animation: WobbleAnimationComponent
+
+var flee_direction: Vector2 = Vector2.ZERO
+var got_hurt: bool = false
+
+func _on_enter() -> void:
+	got_hurt = false
+	_connect_hurtbox()
+	_connect_health()
+
+	# Calculate flee direction (opposite of player)
+	if sense and sense.current_target:
+		var to_player = (sense.current_target.global_position - owner.global_position).normalized()
+		flee_direction = -to_player
+
+func _on_process(delta: float) -> void:
+	if got_hurt:
+		got_hurt = false
+		transition.emit(\"Hurt\")
+	
+	# Update wobble animation while fleeing
+	# Pass a position in the flee direction so enemy faces where they're running
+	if wobble_animation:
+		var flee_target_pos = owner.global_position + flee_direction * 100.0
+		wobble_animation.play(delta, flee_direction, flee_target_pos)
+
+func _on_physics_process(_delta: float) -> void:
+	if not movement or not sense:
+		return
+
+	# Update flee direction periodically
+	if sense.current_target:
+		var to_player = (sense.current_target.global_position - owner.global_position).normalized()
+		flee_direction = -to_player
+
+	# Update facing direction
+	if facing:
+		facing.set_facing_from_direction(flee_direction)
+
+	# Move away from player
+	var desired_velocity = flee_direction * movement.move_speed
+
+	# Apply separation to avoid other enemies
+	if separation:
+		var separation_force = separation.get_separation_vector()
+		desired_velocity += separation_force
+
+	movement.move(desired_velocity)
+
+func _on_exit() -> void:
+	movement.stop()
+	if wobble_animation:
+		wobble_animation.reset()
+	_disconnect_hurtbox()
+	_disconnect_health()
+
+func _connect_hurtbox() -> void:
+	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.connect(_on_hurt)
+
+func _on_hurt(_amount) -> void:
+	got_hurt = true
+
+func _disconnect_hurtbox() -> void:
+	if hurtbox and hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.disconnect(_on_hurt)
+
+func _connect_health() -> void:
+	if health and not health.died.is_connected(_on_death):
+		health.died.connect(_on_death)
+
+func _on_death() -> void:
+	transition.emit(\"Death\")
+
+func _disconnect_health() -> void:
+	if health and health.died.is_connected(_on_death):
+		health.died.disconnect(_on_death)
+"
+
+[sub_resource type="GDScript" id="GDScript_quagl"]
+script/source = "extends NodeState
+
+@export var collision_shapes: Array[CollisionShape2D]
+@export var death_animation: DeathAnimationComponent
+
+func _on_process(_delta : float) -> void:
+	pass
+
+func _on_physics_process(_delta : float) -> void:
+	pass
+
+func _on_next_transitions() -> void:
+	pass
+
+func _on_enter() -> void:
+	owner.velocity = Vector2.ZERO
+	
+	for shape in collision_shapes:
+		shape.disabled = true
+	
+	if death_animation:
+		death_animation.play_death_animation()
+	
+func _on_exit() -> void:
+	pass
+"
+
 [node name="Rogue" type="CharacterBody2D"]
 position = Vector2(0, 2)
 collision_layer = 2
@@ -214,7 +402,7 @@ script = ExtResource("3_ftcjs")
 initial_node_state = NodePath("Idle")
 
 [node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurtbox", "sense", "health")]
-script = ExtResource("4_qvi1n")
+script = SubResource("GDScript_ubqcu")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 sense = NodePath("../../EnemySenseComponent")
 health = NodePath("../../HealthComponent")
@@ -231,7 +419,7 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 knockbackable = NodePath("../../KnockbackableComponent")
 
-[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state")]
+[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state", "enemy_damage")]
 script = ExtResource("36_stunned")
 stun_animation = NodePath("../../StunAnimationComponent")
 stun_bar = NodePath("../../StunBarComponent")
@@ -241,6 +429,7 @@ movement = NodePath("../../MovementComponent")
 knockbackable = NodePath("../../KnockbackableComponent")
 director_request = NodePath("../../CombatDirectorRequestComponent")
 down_state = NodePath("../Down")
+enemy_damage = NodePath("../../EnemyDamageComponent")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = SubResource("GDScript_vh0fs")
@@ -264,7 +453,7 @@ slot_seeker = NodePath("../../SlotSeekerComponent")
 skill_paths = Array[NodePath]([NodePath("../../DashComponent")])
 
 [node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
-script = ExtResource("7_qalk0")
+script = SubResource("GDScript_k40e0")
 movement = NodePath("../../MovementComponent")
 pathfinding = NodePath("../../PathfindingComponent")
 sense = NodePath("../../EnemySenseComponent")
@@ -275,7 +464,7 @@ facing = NodePath("../../FacingComponent")
 wobble_animation = NodePath("../../WobbleAnimationComponent")
 
 [node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("collision_shapes", "death_animation")]
-script = ExtResource("8_tkq6p")
+script = SubResource("GDScript_quagl")
 collision_shapes = [NodePath("../../Sprite2D/HurtboxComponent/CollisionShape2D"), NodePath("../../CollisionShape2D")]
 death_animation = NodePath("../../DeathAnimationComponent")
 

@@ -1,10 +1,9 @@
-[gd_scene load_steps=12 format=4 uid="uid://d15okmgna56rc"]
+[gd_scene load_steps=11 format=4 uid="uid://d15okmgna56rc"]
 
 [ext_resource type="Script" uid="uid://b8d5p3qi56vhq" path="res://scripts/game/components/spawning/wave_spawner.gd" id="1_c2ej4"]
 [ext_resource type="PackedScene" uid="uid://cwldhwq50we3a" path="res://scenes/ui/level_up_screen.tscn" id="2_y7hp1"]
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="3_7ooep"]
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="4_ycyjl"]
-[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="6_n3ten"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="7_u7qnq"]
 [ext_resource type="PackedScene" uid="uid://f2ivkfoof281" path="res://scenes/characters/enemy/rogue/rogue.tscn" id="8_jue7m"]
 [ext_resource type="PackedScene" uid="uid://ca2bfq1gm3nxc" path="res://scenes/characters/enemy/berserker/berserker.tscn" id="9_tam7c"]
@@ -30,8 +29,6 @@ tile_map_data = PackedByteArray("AAAdAAkAAgAGAAYAAAAdAAgAAgAHAAcAAAAdAAcAAgAGAAY
 tile_set = ExtResource("3_7ooep")
 
 [node name="Warrior" parent="." instance=ExtResource("4_ycyjl")]
-
-[node name="Sword" parent="Warrior" instance=ExtResource("6_n3ten")]
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 position = Vector2(130, -57)

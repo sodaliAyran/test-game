@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dj3ftqqhuu0c6"]
+[gd_scene load_steps=24 format=3 uid="uid://dj3ftqqhuu0c6"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_kctm8"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" uid="uid://cljyqaixbkb4s" path="res://scripts/game/components/player/collection_tracker_component.gd" id="19_collection_tracker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="20_facing"]
 [ext_resource type="Script" uid="uid://cvpm7sjn7hur7" path="res://scripts/game/components/animation/facing_indicator_component.gd" id="21_facing_indicator"]
+[ext_resource type="Script" uid="uid://78bffdkpypyb" path="res://scripts/game/components/player/skill_scene_loader.gd" id="22_skill_loader"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
 height = 36.0
@@ -86,6 +87,8 @@ sprite = NodePath("../CharacterSprite")
 [node name="FacingIndicatorComponent" type="Node2D" parent="." node_paths=PackedStringArray("facing")]
 script = ExtResource("21_facing_indicator")
 facing = NodePath("../FacingComponent")
+outer_radius = 25.0
+arc_angle = 0.5
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("7_nkuma")
@@ -148,3 +151,7 @@ debug_color = Color(0.697649, 0.493616, 0, 0.42)
 
 [node name="CollectionTrackerComponent" type="Node" parent="."]
 script = ExtResource("19_collection_tracker")
+
+[node name="SkillSceneLoader" type="Node" parent="."]
+script = ExtResource("22_skill_loader")
+starting_skills = Array[String](["sword_slash"])

@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_qmoh6"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_3bn6v"]
 [ext_resource type="Script" uid="uid://b6ojek6ypaial" path="res://scripts/game/state_machine/node_state_machine.gd" id="3_ssd48"]
-[ext_resource type="Script" uid="uid://cqq8dehx4mn2a" path="res://scenes/characters/enemy/skeleton_soldier/idle_state.gd" id="4_dpllv"]
 [ext_resource type="Script" uid="uid://bkalfexdm6mfi" path="res://scripts/game/states/enemy/hurt_state.gd" id="5_mxuf0"]
 [ext_resource type="Script" uid="uid://0nia7tc4g617" path="res://scripts/game/states/enemy/down_state.gd" id="6_2slcd"]
 [ext_resource type="Script" uid="uid://0lqocve43ixa" path="res://scripts/game/states/enemy/stunned_state.gd" id="7_yci4p"]
@@ -38,6 +37,77 @@ height = 24.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0ap80"]
 radius = 6.13303
 height = 22.9611
+
+[sub_resource type="GDScript" id="GDScript_ubqcu"]
+script/source = "extends NodeState
+
+@export var hurtbox: HurtboxComponent
+@export var sense: EnemySenseComponent
+@export var health: HealthComponent
+
+var got_hurt: bool = false
+var target_acquired_callable: Callable
+
+func _on_process(_delta : float) -> void:
+	if got_hurt:
+		got_hurt = false
+		transition.emit(\"Hurt\")
+	if sense.current_target:
+		_on_target_acquired(sense.current_target)
+
+func _on_physics_process(_delta : float) -> void:
+	pass
+
+func _on_next_transitions() -> void:
+	pass
+
+func _on_enter() -> void:
+	got_hurt = false
+	_connect_hurtbox()
+	_connect_health()
+	_connect_enemy_sense()
+	
+func _on_exit() -> void:
+	_disconnect_health()
+	_disconnect_hurtbox()
+	_disconnect_enemy_sense()
+	
+func _connect_health() -> void:
+	if health and not health.died.is_connected(_on_death):
+		health.died.connect(_on_death)
+		
+func _on_death() -> void:
+	transition.emit(\"Death\")
+	
+func _disconnect_health() -> void:
+	if health and health.died.is_connected(_on_death):
+		health.died.disconnect(_on_death)
+
+func _connect_hurtbox() -> void:
+	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.connect(_on_hurt)
+
+func _on_hurt(amount) -> void:
+	# Damage is already applied by HurtboxComponent
+	got_hurt = true
+
+func _disconnect_hurtbox() -> void:
+	if hurtbox and hurtbox.hurt.is_connected(_on_hurt):
+		hurtbox.hurt.disconnect(_on_hurt)
+
+func _connect_enemy_sense() -> void:
+	if sense:
+		target_acquired_callable = Callable(self, \"_on_target_acquired\")
+		if not sense.is_connected(\"target_acquired\", target_acquired_callable):
+			sense.connect(\"target_acquired\", target_acquired_callable)
+	
+func _on_target_acquired(target: Node2D) -> void:
+	transition.emit(\"Chase\")
+	
+func _disconnect_enemy_sense() -> void:
+	if sense and target_acquired_callable and sense.is_connected(\"target_acquired\", target_acquired_callable):
+		sense.disconnect(\"target_acquired\", target_acquired_callable)
+"
 
 [sub_resource type="GDScript" id="GDScript_vh0fs"]
 script/source = "extends NodeState
@@ -206,7 +276,7 @@ script = ExtResource("3_ssd48")
 initial_node_state = NodePath("Idle")
 
 [node name="Idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("hurtbox", "sense", "health")]
-script = ExtResource("4_dpllv")
+script = SubResource("GDScript_ubqcu")
 hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 sense = NodePath("../../EnemySenseComponent")
 health = NodePath("../../HealthComponent")
@@ -223,7 +293,7 @@ hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
 health = NodePath("../../HealthComponent")
 knockbackable = NodePath("../../KnockbackableComponent")
 
-[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state")]
+[node name="Stunned" type="Node" parent="StateMachine" node_paths=PackedStringArray("stun_animation", "stun_bar", "health", "hurtbox", "movement", "knockbackable", "director_request", "down_state", "enemy_damage")]
 script = ExtResource("7_yci4p")
 stun_animation = NodePath("../../StunAnimationComponent")
 stun_bar = NodePath("../../StunBarComponent")
@@ -233,6 +303,7 @@ movement = NodePath("../../MovementComponent")
 knockbackable = NodePath("../../KnockbackableComponent")
 director_request = NodePath("../../CombatDirectorRequestComponent")
 down_state = NodePath("../Down")
+enemy_damage = NodePath("../../EnemyDamageComponent")
 
 [node name="Chase" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "hurtbox", "health", "wobble_animation", "separation", "slot_seeker")]
 script = SubResource("GDScript_vh0fs")
@@ -285,7 +356,7 @@ metadata/_custom_type_script = "uid://dphatmavxn3u8"
 script = ExtResource("11_dij8q")
 character_body = NodePath("..")
 hurtbox = NodePath("../Sprite2D/HurtboxComponent")
-move_speed = 10.0
+move_speed = 15.0
 metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]

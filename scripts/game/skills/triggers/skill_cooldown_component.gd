@@ -9,6 +9,7 @@ signal cooldown_started
 
 @export var cooldown_time: float = 2.5
 @export var skill_modifier: SkillModifierComponent
+@export var skill_id: String = ""
 
 var is_ready: bool = true
 var _timer: Timer
@@ -24,6 +25,24 @@ func _ready() -> void:
 		if SkillManager:
 			SkillManager.skill_changed.connect(_on_skills_changed)
 			SkillManager.skills_reset.connect(_on_skills_reset)
+
+	# Auto-register with cooldown registry for HUD tracking (player skills only)
+	if skill_id != "" and _is_player_owned():
+		SkillCooldownRegistry.register(skill_id, self)
+
+
+func _is_player_owned() -> bool:
+	var node = get_parent()
+	while node:
+		if node.is_in_group("Player"):
+			return true
+		node = node.get_parent()
+	return false
+
+
+func _exit_tree() -> void:
+	if skill_id != "":
+		SkillCooldownRegistry.unregister(skill_id)
 
 
 func _setup_timer() -> void:

@@ -10,6 +10,7 @@ static func create() -> SkillData:
 	s.path_tags = ["sword", "melee"]
 	s.max_level = 7
 	s.base_weight = 1.0
+	s.scene_path = "res://scenes/skills/sword/sword.tscn"
 
 	var l1 := _level(1, "Slash nearby enemies with your sword.")
 

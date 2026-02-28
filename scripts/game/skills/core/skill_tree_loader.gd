@@ -3,7 +3,7 @@ extends Node
 ## Loads skill trees from code factories and caches them as .tres resources.
 ## Bump TREE_VERSION when skill definitions change to invalidate cache.
 
-const TREE_VERSION := 1
+const TREE_VERSION := 2
 
 const WARRIOR_SKILLS := [
 	preload("res://scripts/game/skills/warrior/sword_slash_skill.gd"),

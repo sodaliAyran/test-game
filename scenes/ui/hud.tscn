@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://bw168syn7gdlu"]
+[gd_scene load_steps=8 format=3 uid="uid://bw168syn7gdlu"]
 
 [ext_resource type="Script" uid="uid://blvuuobyrr0m2" path="res://scripts/game/ui/hud_health_bar.gd" id="1_hud_health_bar"]
 [ext_resource type="Script" uid="uid://dkakp71dkmcvu" path="res://scripts/game/ui/hud_counter_component.gd" id="2_hud_counter"]
 [ext_resource type="Texture2D" uid="uid://cryi1vowjjj0o" path="res://assets/game/ui/icons/skull_icon.png" id="3_skull_icon"]
 [ext_resource type="Texture2D" uid="uid://bmbewbjfc7to1" path="res://assets/game/ui/icons/coin_icon.png" id="4_coin_icon"]
 [ext_resource type="Script" uid="uid://cuxngiwma067k" path="res://scripts/game/ui/hud_xp_bar.gd" id="5_hud_xp_bar"]
+[ext_resource type="Script" path="res://scripts/game/ui/hud_skill_bar.gd" id="6_hud_skill_bar"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_panel"]
 content_margin_left = 12.0
@@ -69,6 +70,19 @@ grow_vertical = 0
 script = ExtResource("5_hud_xp_bar")
 xp_color = Color(0.2, 0.5, 0.95, 1)
 show_level = false
+
+[node name="SkillBar" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -34.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("6_hud_skill_bar")
 
 [node name="StatsPanel" type="PanelContainer" parent="."]
 visible = false

@@ -113,16 +113,12 @@ Enemies at their slot position iterate through skill nodes and request the first
 - `cancel_pending_request()`
 - `activate()` / `deactivate()` - Enable/disable skill when entering/leaving engage state
 
-#### 7. Knockback & Stun System
-**Files:** [knockbackable_component.gd](scripts/game/components/combat/knockbackable_component.gd), [stunned_state.gd](scripts/game/states/enemy/stunned_state.gd), [stun_animation_component.gd](scripts/game/components/animation/stun_animation_component.gd), [stun_bar_component.gd](scripts/game/components/ui/stun_bar_component.gd)
+#### 7. Damage → Stun → Knockback System (Core Loop)
+**Detailed documentation:** [DAMAGE_STUN_KNOCKBACK.md](DAMAGE_STUN_KNOCKBACK.md)
 
-**Flow:**
-1. `KnockbackableComponent` listens for `health_depleted` signal
-2. On depletion → transitions to `Stunned` state (enemy incapacitated)
-3. `StunnedState` shows stun bar and plays stun animation for `stun_duration` seconds
-4. If attacked during stun → freeze frame + knockback → transitions to `Down` state
-5. If stun expires without attack → `KnockbackableComponent.recover()` restores health → transitions to `Chase`
-6. `Down` state plays directional knockdown animation, checks CowardTrait for flee
+**Files:** [knockbackable_component.gd](scripts/game/components/combat/knockbackable_component.gd), [stunned_state.gd](scripts/game/states/enemy/stunned_state.gd), [down_state.gd](scripts/game/states/enemy/down_state.gd), [stun_animation_component.gd](scripts/game/components/animation/stun_animation_component.gd), [stun_bar_component.gd](scripts/game/components/ui/stun_bar_component.gd), [down_animation_component.gd](scripts/game/components/animation/down_animation_component.gd)
+
+**Flow:** Damage depletes health → `health_depleted` signal → `KnockbackableComponent` transitions to **Stunned** (invincible, glowing, stun bar) → Player walks over to **stomp** (freeze frame + knockback force) → **Down** (directional knockdown animation) → recover health → **Chase** (or **Flee** via CowardTrait). If stun timer expires without stomp, enemy recovers and resumes chasing.
 
 #### 8. Windup Indicator System
 **Files:** [windup_indicator_component.gd](scripts/game/components/animation/windup_indicator_component.gd), [circle_shape_renderer.gd](scripts/game/components/animation/circle_shape_renderer.gd), [line_shape_renderer.gd](scripts/game/components/animation/line_shape_renderer.gd), [windup_effect.gd](scripts/game/components/animation/windup_effect.gd), [dash_windup_effect.gd](scripts/game/components/animation/dash_windup_effect.gd)

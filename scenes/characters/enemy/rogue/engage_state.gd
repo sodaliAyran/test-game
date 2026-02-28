@@ -16,6 +16,8 @@ extends NodeState
 
 ## Time between skill request attempts when denied
 @export var request_cooldown: float = 0.8
+## Initial delay before first skill request (randomized ± 50%)
+@export var initial_delay: float = 0.6
 
 var got_hurt: bool = false
 var target: Node2D = null
@@ -25,7 +27,7 @@ var _skills: Array[Node] = []
 
 func _on_enter() -> void:
 	got_hurt = false
-	_request_cooldown_timer = 0.0
+	_request_cooldown_timer = initial_delay * randf_range(0.5, 1.5)
 	target = sense.current_target
 
 	_skills.clear()

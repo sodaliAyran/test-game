@@ -89,6 +89,7 @@ weapon_offset = Vector2(40, 0)
 script = ExtResource("6_cooldown")
 cooldown_time = 1.0
 skill_modifier = NodePath("../SkillModifierComponent")
+skill_id = "punch"
 
 [node name="SkillTriggerArea" type="Area2D" parent="." node_paths=PackedStringArray("cooldown")]
 collision_layer = 0

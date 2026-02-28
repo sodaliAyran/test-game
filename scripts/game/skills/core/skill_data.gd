@@ -7,6 +7,7 @@ extends Resource
 @export var skill_name: String = ""
 @export_multiline var description: String = ""
 @export var icon_path: String = ""
+@export var scene_path: String = ""
 
 ## Skill category for grouping/UI
 @export_enum("melee", "ranged", "defensive", "passive", "utility") var category: String = "melee"

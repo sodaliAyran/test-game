@@ -2,8 +2,8 @@ extends NodeState
 class_name StunnedState
 
 ## Time-based stunned state. Enemy is incapacitated and cannot act.
-## If player attacks during stun → knocked back to Down state.
-## If stun expires without attack → recover health and resume.
+## If player walks on top during stun → knocked back to Down state.
+## If stun expires without being walked on → recover health and resume.
 
 @export var stun_animation: Node # StunAnimationComponent
 @export var stun_bar: Node # StunBarComponent
@@ -13,16 +13,22 @@ class_name StunnedState
 @export var knockbackable: Node # KnockbackableComponent
 @export var director_request: Node # CombatDirectorRequestComponent
 @export var down_state: Node # Down state (to pass knockback direction)
+@export var enemy_damage: Node # EnemyDamageComponent - disabled during stun
 
 @export_group("Stun Settings")
 @export var stun_duration: float = 5.0 # Time before recovery
-@export var knockback_force: float = 1500.0 # Force applied when hit during stun
+@export var knockback_force: float = 1500.0 # Force applied when walked on during stun
 @export var freeze_duration: float = 0.25 # Freeze frame duration for impact
 
+@export var stomp_detection_radius: float = 5.0 # How close player must be to trigger knockdown
+@export var invulnerability_duration: float = 0.5 # Grace period before knockback is possible
+
 var _elapsed_time: float = 0.0
+var _stomp_active: bool = false
 var _was_knocked: bool = false
 var _knockback_direction: Vector2 = Vector2.ZERO
 var _effective_stun_duration: float = 0.0
+var _stomp_area: Area2D = null
 
 
 func _get_effective_stun_duration() -> float:
@@ -36,6 +42,7 @@ func _on_enter() -> void:
 	_elapsed_time = 0.0
 	_was_knocked = false
 	_knockback_direction = Vector2.ZERO
+	_stomp_active = false
 	_effective_stun_duration = _get_effective_stun_duration()
 
 	# Cancel any pending combat director requests
@@ -45,9 +52,14 @@ func _on_enter() -> void:
 	if movement:
 		movement.stop()
 
-	# Enemy is NOT invincible - can be attacked during stun!
+	# Enemy is invincible during stun - no damage from attacks
 	if hurtbox:
-		hurtbox.invincible = false
+		hurtbox.invincible = true
+
+	# Disable contact damage so player can walk over safely
+	if enemy_damage and enemy_damage.get("damage_area"):
+		enemy_damage.set_process(false)
+		enemy_damage.damage_area.monitoring = false
 
 	# Play stun visual effect
 	if stun_animation:
@@ -57,12 +69,14 @@ func _on_enter() -> void:
 	if stun_bar:
 		stun_bar.show_bar(_effective_stun_duration)
 
-	# Connect signals
-	_connect_hurtbox()
-
 
 func _on_process(delta: float) -> void:
 	_elapsed_time += delta
+
+	# Activate stomp detection after invulnerability grace period
+	if not _stomp_active and _elapsed_time >= invulnerability_duration:
+		_stomp_active = true
+		_create_stomp_area()
 
 	# Update stun bar
 	if stun_bar:
@@ -90,7 +104,17 @@ func _on_exit() -> void:
 	if stun_bar:
 		stun_bar.hide_bar()
 
-	_disconnect_hurtbox()
+	# Re-enable contact damage
+	if enemy_damage and enemy_damage.get("damage_area"):
+		enemy_damage.set_process(true)
+		enemy_damage.damage_area.monitoring = true
+
+	# Re-enable hurtbox
+	if hurtbox:
+		hurtbox.invincible = false
+
+	# Remove stomp detection area
+	_destroy_stomp_area()
 
 	# If knocked, pass direction to Down state
 	if _was_knocked and down_state and down_state.has_method("set_knockback_direction"):
@@ -104,33 +128,47 @@ func _cancel_pending_actions() -> void:
 	CombatDirector.complete_attack(owner)
 
 
-func _connect_hurtbox() -> void:
-	if hurtbox:
-		if not hurtbox.hurt.is_connected(_on_hurt):
-			hurtbox.hurt.connect(_on_hurt)
-		if not hurtbox.knocked.is_connected(_on_knocked):
-			hurtbox.knocked.connect(_on_knocked)
+func _create_stomp_area() -> void:
+	_stomp_area = Area2D.new()
+	_stomp_area.collision_layer = 0
+	_stomp_area.collision_mask = CollisionLayers.PLAYER_HURTBOX
+
+	var shape = CircleShape2D.new()
+	shape.radius = stomp_detection_radius
+	var collision_shape = CollisionShape2D.new()
+	collision_shape.shape = shape
+	_stomp_area.add_child(collision_shape)
+
+	owner.add_child(_stomp_area)
+	_stomp_area.area_entered.connect(_on_player_stomp)
+	# Check for player already overlapping (deferred so physics has updated)
+	call_deferred("_check_existing_stomp_overlaps")
 
 
-func _disconnect_hurtbox() -> void:
-	if hurtbox:
-		if hurtbox.hurt.is_connected(_on_hurt):
-			hurtbox.hurt.disconnect(_on_hurt)
-		if hurtbox.knocked.is_connected(_on_knocked):
-			hurtbox.knocked.disconnect(_on_knocked)
+func _check_existing_stomp_overlaps() -> void:
+	if _stomp_area and is_instance_valid(_stomp_area):
+		for area in _stomp_area.get_overlapping_areas():
+			_on_player_stomp(area)
 
 
-func _on_hurt(_amount: int) -> void:
-	# Any damage during stun triggers transition to Down
-	# Direction and force come from _on_knocked which fires right after
-	_was_knocked = true
-	# Freeze frame for impact juice
-	FreezeFrame.freeze(freeze_duration)
+func _destroy_stomp_area() -> void:
+	if _stomp_area and is_instance_valid(_stomp_area):
+		_stomp_area.area_entered.disconnect(_on_player_stomp)
+		_stomp_area.queue_free()
+		_stomp_area = null
 
 
-func _on_knocked(direction: Vector2, _force: float) -> void:
-	_was_knocked = true
-	_knockback_direction = direction
-	# Apply our own knockback force (ignoring hitbox force)
-	if movement:
-		movement.apply_knockback(direction * knockback_force)
+func _on_player_stomp(area: Area2D) -> void:
+	if _was_knocked:
+		return
+	# Check that the overlapping area belongs to a player
+	if area.owner and area.owner.is_in_group("Player"):
+		_was_knocked = true
+		# Knockback direction: away from the player
+		var player_pos = area.owner.global_position
+		_knockback_direction = (owner.global_position - player_pos).normalized()
+		# Apply knockback force
+		if movement:
+			movement.apply_knockback(_knockback_direction * knockback_force)
+		# Execution camera effect: slow-mo, zoom, screen shake
+		ExecutionCamera.play(owner.global_position)

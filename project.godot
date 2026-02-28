@@ -25,6 +25,8 @@ GameStats="*res://scripts/game/systems/game_stats_manager.gd"
 CircleSlotManager="*res://scripts/game/systems/circle_slot_manager.gd"
 CombatDirector="*res://scripts/game/systems/combat_director.gd"
 FreezeFrame="*res://scripts/game/systems/freeze_frame.gd"
+ExecutionCamera="*res://scripts/game/systems/execution_camera.gd"
+SkillCooldownRegistry="*res://scripts/game/systems/skill_cooldown_registry.gd"
 
 [debug]
 
@@ -32,13 +34,11 @@ settings/stdout/print_fps=true
 
 [display]
 
-window/size/viewport_width=640
-window/size/viewport_height=360
-window/size/window_width_override=1280
-window/size/window_height_override=720
+window/size/viewport_width=360
+window/size/viewport_height=640
+window/size/window_width_override=720
+window/size/window_height_override=1280
 window/stretch/mode="viewport"
-window/stretch/aspect="expand"
-window/stretch/scale_mode="integer"
 window/vsync/vsync_mode=0
 
 [input]

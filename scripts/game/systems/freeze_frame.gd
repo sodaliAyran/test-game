@@ -19,6 +19,10 @@ func _process(_delta: float) -> void:
 		Engine.time_scale = 1
 
 
+func cancel() -> void:
+	_is_frozen = false
+
+
 func freeze(duration: float = 0.1) -> void:
 	var end_time = Time.get_ticks_msec() + int(duration * 1000)
 

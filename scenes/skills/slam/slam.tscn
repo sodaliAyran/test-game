@@ -87,6 +87,7 @@ trigger_area = NodePath("../SkillTriggerArea")
 script = ExtResource("5_cooldown")
 cooldown_time = 3.0
 skill_modifier = NodePath("../SkillModifierComponent")
+skill_id = "slam"
 
 [node name="SkillTriggerArea" type="Area2D" parent="."]
 collision_layer = 0

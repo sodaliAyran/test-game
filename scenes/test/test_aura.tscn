@@ -1,14 +1,12 @@
-[gd_scene load_steps=14 format=4 uid="uid://dccfppfe3aq5q"]
+[gd_scene load_steps=12 format=4 uid="uid://dccfppfe3aq5q"]
 
 [ext_resource type="Script" uid="uid://b8d5p3qi56vhq" path="res://scripts/game/components/spawning/wave_spawner.gd" id="1_b5ng4"]
 [ext_resource type="PackedScene" uid="uid://cwldhwq50we3a" path="res://scenes/ui/level_up_screen.tscn" id="1_m4tr5"]
 [ext_resource type="TileSet" uid="uid://flstyk8y62dg" path="res://tilesets/new_tile_set.tres" id="1_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://dj3ftqqhuu0c6" path="res://scenes/characters/player/warrior/warrior.tscn" id="2_m4tr5"]
-[ext_resource type="PackedScene" uid="uid://bhkedcgr471nf" path="res://scenes/skills/punch/punch.tscn" id="5_2noyv"]
 [ext_resource type="PackedScene" uid="uid://f2ivkfoof281" path="res://scenes/characters/enemy/rogue/rogue.tscn" id="5_ynfwt"]
 [ext_resource type="PackedScene" uid="uid://ca2bfq1gm3nxc" path="res://scenes/characters/enemy/berserker/berserker.tscn" id="6_m4tr5"]
 [ext_resource type="PackedScene" uid="uid://bw168syn7gdlu" path="res://scenes/ui/hud.tscn" id="6_qov67"]
-[ext_resource type="PackedScene" uid="uid://bkmerrmyu553b" path="res://scenes/skills/sword/sword.tscn" id="6_xfgyk"]
 [ext_resource type="PackedScene" uid="uid://by03jig1c7tnm" path="res://scenes/test/wave_spawner.tscn" id="9_qov67"]
 [ext_resource type="Resource" path="res://resources/timelines/throne_room_schedule.tres" id="10_xfgyk"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over_screen.tscn" id="12_xfgyk"]
@@ -18,7 +16,7 @@ vertices = PackedVector2Array(836.203, 705.578, -1030.35, 734.25, -1057.23, -366
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(-1067.48, -376.661, 319.453, -392.833, 843.945, -398.949, 846.226, 715.433, -1040.11, 744.407)])
 
-[node name="TestThrone" type="Node2D"]
+[node name="TestThrone2" type="Node2D"]
 position = Vector2(0, -2)
 script = ExtResource("1_b5ng4")
 
@@ -32,10 +30,6 @@ tile_map_data = PackedByteArray("AAAdAAkAAgAGAAYAAAAdAAgAAgAHAAcAAAAdAAcAAgAGAAY
 tile_set = ExtResource("1_ynfwt")
 
 [node name="Warrior" parent="." instance=ExtResource("2_m4tr5")]
-
-[node name="Punch" parent="Warrior" instance=ExtResource("5_2noyv")]
-
-[node name="Sword" parent="Warrior" instance=ExtResource("6_xfgyk")]
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 position = Vector2(130, -57)
