@@ -2,20 +2,30 @@ class_name CollectibleComponent
 extends Node2D
 
 signal collected(collector)
+signal collection_finished(collector)
 
 @export var collectible_type: String = "coin"
 @export var value: int = 1
 @export var attraction_speed: float = 8.0  # Speed of magnetic pull
 @export var collection_distance: float = 10.0  # Distance at which it's collected
+@export var pickup_delay: float = 0.5  # Time before the item can be picked up
 
 var is_attracted: bool = false
 var is_collecting: bool = false
+var is_pickupable: bool = false
 var target_collector: Node2D = null
 
 func _ready() -> void:
 	# Register with spatial grid
 	if SpatialGrid:
 		SpatialGrid.register_entity(self, "collectibles")
+
+	# Start pickup delay
+	if pickup_delay > 0.0:
+		is_pickupable = false
+		get_tree().create_timer(pickup_delay).timeout.connect(func(): is_pickupable = true)
+	else:
+		is_pickupable = true
 
 func _exit_tree() -> void:
 	# Unregister from spatial grid
@@ -44,6 +54,8 @@ func _process(delta: float) -> void:
 
 func start_attraction(collector: Node2D) -> void:
 	"""Start being attracted to a collector."""
+	if not is_pickupable:
+		return
 	if not is_attracted and not is_collecting:
 		is_attracted = true
 		target_collector = collector
@@ -55,7 +67,7 @@ func stop_attraction() -> void:
 
 func _collect(collector_override: Node2D = null) -> void:
 	"""Called when the collectible is collected."""
-	if is_collecting:
+	if is_collecting or not is_pickupable:
 		return
 	is_collecting = true
 
@@ -73,6 +85,7 @@ func _collect(collector_override: Node2D = null) -> void:
 	# Play collection animation if available, otherwise free immediately
 	var anim = get_node_or_null("CollectAnimationComponent")
 	if anim and anim.has_method("play") and is_instance_valid(collector):
-		anim.play(collector)
+		anim.play(collector, func(): collection_finished.emit(collector))
 	else:
+		collection_finished.emit(collector)
 		queue_free()

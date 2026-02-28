@@ -75,6 +75,11 @@ func _on_level_up(_new_level: int) -> void:
 		print("LevelUpScreen: No offerings available (all skills maxed)")
 		return
 
+	# Defer level-up screen until execution camera finishes (stomp slow-mo)
+	if ExecutionCamera.is_playing():
+		print("LevelUpScreen: Waiting for execution camera to finish")
+		await ExecutionCamera.execution_finished
+
 	show_screen(_current_offerings.size())
 
 

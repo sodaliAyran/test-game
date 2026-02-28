@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://ck78reec75ea1"]
+
+[ext_resource type="Script" uid="uid://ddick5omjoqrp" path="res://scripts/game/components/animation/fade_animation_component.gd" id="1_7ko5s"]
+[ext_resource type="Script" uid="uid://b35kv6kb2iivw" path="res://scripts/game/components/ui/damage_number_component.gd" id="2_nrg7g"]
+[ext_resource type="Script" uid="uid://dhxbfyvsdh8be" path="res://scripts/game/components/systems/kill_tracker_component.gd" id="3_814l2"]
+
+[node name="EnemyFeedback" type="Node2D"]
+
+[node name="FadeAnimationComponent" type="Node" parent="."]
+script = ExtResource("1_7ko5s")
+metadata/_custom_type_script = "uid://ddick5omjoqrp"
+
+[node name="DamageNumberComponent" type="Node2D" parent="."]
+script = ExtResource("2_nrg7g")
+metadata/_custom_type_script = "uid://b35kv6kb2iivw"
+
+[node name="KillTrackerComponent" type="Node" parent="."]
+script = ExtResource("3_814l2")
+metadata/_custom_type_script = "uid://dhxbfyvsdh8be"

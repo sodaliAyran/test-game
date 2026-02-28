@@ -5,6 +5,7 @@ extends Node
 ## Triggers transition to Stunned state, which handles the knockback/recovery flow.
 
 signal became_knockbackable
+signal stomped(direction: Vector2)
 signal recovered
 
 @export var health: HealthComponent

@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://booqbe4ybh3o0"]
+
+[ext_resource type="Script" uid="uid://bsr344wq40tlo" path="res://scripts/game/components/combat/knockbackable_component.gd" id="1_o0il0"]
+[ext_resource type="Script" uid="uid://blyx375gdxrxj" path="res://scripts/game/components/combat/combat_director_request_component.gd" id="2_l30f8"]
+[ext_resource type="Script" uid="uid://cdahn5s3sfw2m" path="res://scripts/game/components/animation/stun_animation_component.gd" id="3_x2dgk"]
+[ext_resource type="Script" uid="uid://dbo5bimjy5wbg" path="res://scripts/game/components/ui/stun_bar_component.gd" id="4_kjvr4"]
+[ext_resource type="Script" uid="uid://ba75h6leyutgo" path="res://scripts/game/components/animation/down_animation_component.gd" id="5_dlswb"]
+
+[node name="EnemyKnockbackStun" type="Node2D"]
+
+[node name="KnockbackableComponent" type="Node" parent="."]
+script = ExtResource("1_o0il0")
+metadata/_custom_type_script = "uid://bsr344wq40tlo"
+
+[node name="CombatDirectorRequestComponent" type="Node" parent="."]
+script = ExtResource("2_l30f8")
+metadata/_custom_type_script = "uid://blyx375gdxrxj"
+
+[node name="StunAnimationComponent" type="Node" parent="."]
+script = ExtResource("3_x2dgk")
+metadata/_custom_type_script = "uid://cdahn5s3sfw2m"
+
+[node name="StunBarComponent" type="Node2D" parent="."]
+script = ExtResource("4_kjvr4")
+metadata/_custom_type_script = "uid://dbo5bimjy5wbg"
+
+[node name="DownAnimationComponent" type="Node" parent="."]
+script = ExtResource("5_dlswb")
+metadata/_custom_type_script = "uid://ba75h6leyutgo"

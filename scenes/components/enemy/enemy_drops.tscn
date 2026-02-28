@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://rubkhx4uajpb"]
+
+[ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="1_4x3eu"]
+[ext_resource type="Script" uid="uid://d0sj3p8j6ui7o" path="res://scripts/game/components/collectibles/knockback_drop_component.gd" id="2_2hraq"]
+
+[node name="EnemyDrops" type="Node2D"]
+
+[node name="HitDropComponent" type="Node" parent="."]
+script = ExtResource("1_4x3eu")
+metadata/_custom_type_script = "uid://dm2pg188h33mq"
+
+[node name="KnockbackDropComponent" type="Node" parent="."]
+script = ExtResource("2_2hraq")
+metadata/_custom_type_script = "uid://d0sj3p8j6ui7o"

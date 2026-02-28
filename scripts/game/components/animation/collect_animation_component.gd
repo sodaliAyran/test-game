@@ -12,8 +12,9 @@ extends Node
 
 var _collector: Node2D
 var _return_start_pos: Vector2
+var _on_complete: Callable
 
-func play(collector: Node2D) -> void:
+func play(collector: Node2D, on_complete: Callable = Callable()) -> void:
 	var parent = get_parent() as Node2D
 	if not parent or not is_instance_valid(collector):
 		if parent:
@@ -21,6 +22,7 @@ func play(collector: Node2D) -> void:
 		return
 
 	_collector = collector
+	_on_complete = on_complete
 
 	# Calculate pullback direction (away from collector)
 	var dir_away = (parent.global_position - collector.global_position).normalized()
@@ -67,6 +69,8 @@ func _update_return_position(t: float) -> void:
 	parent.global_position = _return_start_pos.lerp(target_pos, t)
 
 func _on_finished() -> void:
+	if _on_complete.is_valid():
+		_on_complete.call()
 	var parent = get_parent()
 	if parent:
 		parent.queue_free()

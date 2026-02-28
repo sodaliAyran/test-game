@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://yfo8xrqflcvf"]
+
+[ext_resource type="Script" uid="uid://blt8qxujohwor" path="res://scripts/game/components/enemy/enemy_sense_component.gd" id="1_dl41p"]
+[ext_resource type="Script" uid="uid://dphatmavxn3u8" path="res://scripts/game/components/enemy/pathfinding_component.gd" id="2_0xxe1"]
+[ext_resource type="Script" uid="uid://bcayodtipc5tk" path="res://scripts/game/components/enemy/separation_component.gd" id="3_edkax"]
+[ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="4_ts0mr"]
+[ext_resource type="Script" uid="uid://5xngd2y3x7h" path="res://scripts/game/components/enemy/enemy_damage_component.gd" id="5_6wir3"]
+
+[node name="EnemyLocomotion" type="Node2D"]
+
+[node name="EnemySenseComponent" type="Area2D" parent="."]
+script = ExtResource("1_dl41p")
+metadata/_custom_type_script = "uid://blt8qxujohwor"
+
+[node name="PathfindingComponent" type="Node" parent="." node_paths=PackedStringArray("agent")]
+script = ExtResource("2_0xxe1")
+agent = NodePath("../NavigationAgent2D")
+metadata/_custom_type_script = "uid://dphatmavxn3u8"
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="SeparationComponent" type="Node" parent="."]
+script = ExtResource("3_edkax")
+metadata/_custom_type_script = "uid://bcayodtipc5tk"
+
+[node name="SlotSeekerComponent" type="Node" parent="."]
+script = ExtResource("4_ts0mr")
+metadata/_custom_type_script = "uid://dm8kv7idfcx3e"
+
+[node name="EnemyDamageComponent" type="Node2D" parent="."]
+script = ExtResource("5_6wir3")
+metadata/_custom_type_script = "uid://5xngd2y3x7h"

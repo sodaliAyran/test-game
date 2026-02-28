@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://cp2dmy2yat336"]
+[gd_scene load_steps=35 format=3 uid="uid://cp2dmy2yat336"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_qmoh6"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_3bn6v"]
@@ -29,6 +29,7 @@
 [ext_resource type="Script" uid="uid://cgiif5lsyeju3" path="res://scenes/characters/enemy/mage/disengage_state.gd" id="30_disen"]
 [ext_resource type="Script" uid="uid://ddick5omjoqrp" path="res://scripts/game/components/animation/fade_animation_component.gd" id="31_fade"]
 [ext_resource type="PackedScene" uid="uid://7wtx4lfw3rxx" path="res://scenes/skills/magic_missile/magic_missile_skill.tscn" id="32_mmskl"]
+[ext_resource type="Script" uid="uid://d0sj3p8j6ui7o" path="res://scripts/game/components/collectibles/knockback_drop_component.gd" id="39_kbdrop"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
 radius = 7.0
@@ -361,7 +362,6 @@ metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("12_kphks")
-max_health = 15
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
 [node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
@@ -415,8 +415,6 @@ script = ExtResource("23_i4i1d")
 script = ExtResource("24_ogt13")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("25_uymsl")
-drop_chance = 1.0
-max_drops = 3
 
 [node name="CombatDirectorRequestComponent" type="Node" parent="."]
 script = ExtResource("26_h7q4l")
@@ -432,3 +430,10 @@ sprite = NodePath("../Sprite2D")
 script = ExtResource("28_ptijq")
 health = NodePath("../HealthComponent")
 state_machine = NodePath("../StateMachine")
+
+[node name="KnockbackDropComponent" type="Node" parent="." node_paths=PackedStringArray("knockbackable")]
+script = ExtResource("39_kbdrop")
+knockbackable = NodePath("../KnockbackableComponent")
+drop_scene = ExtResource("25_uymsl")
+drop_count = 5
+metadata/_custom_type_script = "uid://d0sj3p8j6ui7o"

@@ -44,8 +44,11 @@ func _on_area_entered(area: Area2D) -> void:
 		var type = collectible.collectible_type if "collectible_type" in collectible else "unknown"
 		var val = collectible.value if "value" in collectible else 1
 
-		# Emit signal for game logic (UI updates, stats, etc.)
-		item_collected.emit(type, val)
+		# Defer stats until collection animation finishes
+		if collectible.has_signal("collection_finished"):
+			collectible.collection_finished.connect(func(_c): item_collected.emit(type, val), CONNECT_ONE_SHOT)
+		else:
+			item_collected.emit(type, val)
 
 		# Pass owner as collector so the collection animation knows where to swoop to
 		collectible._collect(owner)

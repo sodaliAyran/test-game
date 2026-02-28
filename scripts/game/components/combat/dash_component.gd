@@ -40,6 +40,7 @@ var _dash_timer: Timer
 var _cooldown_timer: Timer
 var _original_invincible: bool = false
 var _pending_dash_direction: Vector2 = Vector2.ZERO
+var _dash_target_point: Vector2 = Vector2.ZERO  ## World position the dash aims at
 var _indicator: WindupIndicatorComponent
 var _sprite_effect: DashWindupEffect
 
@@ -195,12 +196,23 @@ func _create_indicator(dash_distance: float) -> void:
 	_indicator.global_position = character_body.global_position
 	_indicator.start()
 
+	# Store the world-space endpoint so we can recalculate direction if rogue drifts
+	_dash_target_point = character_body.global_position + _pending_dash_direction * dash_distance
+
 
 func _on_windup_completed() -> void:
 	_indicator = null
 	_sprite_effect = null
-	windup_finished.emit(_pending_dash_direction)
+	# Recalculate direction from current position to the indicator's endpoint
+	# so the dash follows the line even if the rogue drifted during windup
+	var final_direction = _pending_dash_direction
+	if character_body and _dash_target_point != Vector2.ZERO:
+		var to_target = _dash_target_point - character_body.global_position
+		if to_target.length() > 1.0:
+			final_direction = to_target.normalized()
+	windup_finished.emit(final_direction)
 	_pending_dash_direction = Vector2.ZERO
+	_dash_target_point = Vector2.ZERO
 
 
 func cancel_windup() -> void:
@@ -217,6 +229,7 @@ func cancel_windup() -> void:
 	_sprite_effect = null
 
 	_pending_dash_direction = Vector2.ZERO
+	_dash_target_point = Vector2.ZERO
 	if director_request:
 		director_request.complete_action()
 	CombatDirector.refund_ap(ap_cost * ap_refund_ratio)
@@ -276,6 +289,7 @@ func cancel_pending_request() -> void:
 	if director_request:
 		director_request.cancel_pending_request()
 	_pending_dash_direction = Vector2.ZERO
+	_dash_target_point = Vector2.ZERO
 
 
 func is_winding_up() -> bool:

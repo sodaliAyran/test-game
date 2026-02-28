@@ -52,9 +52,10 @@ func _on_enter() -> void:
 	if movement:
 		movement.stop()
 
-	# Enemy is invincible during stun - no damage from attacks
+	# Disable hurtbox entirely so player skills pass through
 	if hurtbox:
 		hurtbox.invincible = true
+		hurtbox.monitorable = false
 
 	# Disable contact damage so player can walk over safely
 	if enemy_damage and enemy_damage.get("damage_area"):
@@ -112,6 +113,7 @@ func _on_exit() -> void:
 	# Re-enable hurtbox
 	if hurtbox:
 		hurtbox.invincible = false
+		hurtbox.monitorable = true
 
 	# Remove stomp detection area
 	_destroy_stomp_area()
@@ -172,3 +174,6 @@ func _on_player_stomp(area: Area2D) -> void:
 			movement.apply_knockback(_knockback_direction * knockback_force)
 		# Execution camera effect: slow-mo, zoom, screen shake
 		ExecutionCamera.play(owner.global_position)
+		# Emit stomped signal for coin burst etc.
+		if knockbackable:
+			knockbackable.stomped.emit(_knockback_direction)

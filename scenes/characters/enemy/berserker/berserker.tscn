@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://ca2bfq1gm3nxc"]
+[gd_scene load_steps=37 format=3 uid="uid://ca2bfq1gm3nxc"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_3g6yi"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_mveou"]
@@ -17,10 +17,7 @@
 [ext_resource type="Script" uid="uid://b35kv6kb2iivw" path="res://scripts/game/components/ui/damage_number_component.gd" id="18_p1g1x"]
 [ext_resource type="PackedScene" uid="uid://cn74jcjtvrdmu" path="res://scenes/objects/coin.tscn" id="20_hepg3"]
 [ext_resource type="Script" uid="uid://5xngd2y3x7h" path="res://scripts/game/components/enemy/enemy_damage_component.gd" id="21_hl47r"]
-[ext_resource type="Script" uid="uid://duisvww7b2r3b" path="res://scripts/game/components/ui/text_bubble_component.gd" id="22_y4y2w"]
-[ext_resource type="Resource" path="res://resources/dialogue/skeleton_spawn_dialogue.tres" id="23_5cvg5"]
 [ext_resource type="Script" uid="uid://dhxbfyvsdh8be" path="res://scripts/game/components/systems/kill_tracker_component.gd" id="24_6uk18"]
-[ext_resource type="Script" uid="uid://cxxxuga54xuom" path="res://scripts/game/components/systems/nemesis_component.gd" id="25_ektbh"]
 [ext_resource type="Script" uid="uid://dm2pg188h33mq" path="res://scripts/game/components/collectibles/hit_drop_component.gd" id="28_ip5rs"]
 [ext_resource type="Script" uid="uid://dm8kv7idfcx3e" path="res://scripts/game/components/enemy/slot_seeker_component.gd" id="29_slot_seeker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="30_facing"]
@@ -31,6 +28,7 @@
 [ext_resource type="Script" uid="uid://bsr344wq40tlo" path="res://scripts/game/components/combat/knockbackable_component.gd" id="36_knockbackable"]
 [ext_resource type="Script" uid="uid://0lqocve43ixa" path="res://scripts/game/states/enemy/stunned_state.gd" id="37_stunned"]
 [ext_resource type="Script" uid="uid://cdahn5s3sfw2m" path="res://scripts/game/components/animation/stun_animation_component.gd" id="38_stun_anim"]
+[ext_resource type="Script" uid="uid://d0sj3p8j6ui7o" path="res://scripts/game/components/collectibles/knockback_drop_component.gd" id="39_kbdrop"]
 [ext_resource type="Script" uid="uid://dbo5bimjy5wbg" path="res://scripts/game/components/ui/stun_bar_component.gd" id="39_stun_bar"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vdd08"]
@@ -285,98 +283,6 @@ func _disconnect_sense() -> void:
 	
 "
 
-[sub_resource type="GDScript" id="GDScript_k40e0"]
-script/source = "extends NodeState
-
-## State where enemy flees from player
-## Enemies can be hurt while fleeing - transitions to Hurt then back to Flee
-
-@export var movement: MovementComponent
-@export var pathfinding: PathfindingComponent
-@export var sense: EnemySenseComponent
-@export var separation: SeparationComponent
-@export var hurtbox: HurtboxComponent
-@export var health: HealthComponent
-@export var facing: FacingComponent
-@export var wobble_animation: WobbleAnimationComponent
-
-var flee_direction: Vector2 = Vector2.ZERO
-var got_hurt: bool = false
-
-func _on_enter() -> void:
-	got_hurt = false
-	_connect_hurtbox()
-	_connect_health()
-
-	# Calculate flee direction (opposite of player)
-	if sense and sense.current_target:
-		var to_player = (sense.current_target.global_position - owner.global_position).normalized()
-		flee_direction = -to_player
-
-func _on_process(delta: float) -> void:
-	if got_hurt:
-		got_hurt = false
-		transition.emit(\"Hurt\")
-	
-	# Update wobble animation while fleeing
-	# Pass a position in the flee direction so enemy faces where they're running
-	if wobble_animation:
-		var flee_target_pos = owner.global_position + flee_direction * 100.0
-		wobble_animation.play(delta, flee_direction, flee_target_pos)
-
-func _on_physics_process(_delta: float) -> void:
-	if not movement or not sense:
-		return
-
-	# Update flee direction periodically
-	if sense.current_target:
-		var to_player = (sense.current_target.global_position - owner.global_position).normalized()
-		flee_direction = -to_player
-
-	# Update facing direction
-	if facing:
-		facing.set_facing_from_direction(flee_direction)
-
-	# Move away from player
-	var desired_velocity = flee_direction * movement.move_speed
-
-	# Apply separation to avoid other enemies
-	if separation:
-		var separation_force = separation.get_separation_vector()
-		desired_velocity += separation_force
-
-	movement.move(desired_velocity)
-
-func _on_exit() -> void:
-	movement.stop()
-	if wobble_animation:
-		wobble_animation.reset()
-	_disconnect_hurtbox()
-	_disconnect_health()
-
-func _connect_hurtbox() -> void:
-	if hurtbox and not hurtbox.hurt.is_connected(_on_hurt):
-		hurtbox.hurt.connect(_on_hurt)
-
-func _on_hurt(_amount) -> void:
-	got_hurt = true
-
-func _disconnect_hurtbox() -> void:
-	if hurtbox and hurtbox.hurt.is_connected(_on_hurt):
-		hurtbox.hurt.disconnect(_on_hurt)
-
-func _connect_health() -> void:
-	if health and not health.died.is_connected(_on_death):
-		health.died.connect(_on_death)
-
-func _on_death() -> void:
-	transition.emit(\"Death\")
-
-func _disconnect_health() -> void:
-	if health and health.died.is_connected(_on_death):
-		health.died.disconnect(_on_death)
-"
-
 [sub_resource type="GDScript" id="GDScript_quagl"]
 script/source = "extends NodeState
 
@@ -488,17 +394,6 @@ wobble_animation = NodePath("../../WobbleAnimationComponent")
 slot_seeker = NodePath("../../SlotSeekerComponent")
 skill_paths = Array[NodePath]([NodePath("../../SlamSkillComponent")])
 
-[node name="Flee" type="Node" parent="StateMachine" node_paths=PackedStringArray("movement", "pathfinding", "sense", "separation", "hurtbox", "health", "facing", "wobble_animation")]
-script = SubResource("GDScript_k40e0")
-movement = NodePath("../../MovementComponent")
-pathfinding = NodePath("../../PathfindingComponent")
-sense = NodePath("../../EnemySenseComponent")
-separation = NodePath("../../SeparationComponent")
-hurtbox = NodePath("../../Sprite2D/HurtboxComponent")
-health = NodePath("../../HealthComponent")
-facing = NodePath("../../FacingComponent")
-wobble_animation = NodePath("../../WobbleAnimationComponent")
-
 [node name="Death" type="Node" parent="StateMachine" node_paths=PackedStringArray("collision_shapes", "death_animation")]
 script = SubResource("GDScript_quagl")
 collision_shapes = [NodePath("../../Sprite2D/HurtboxComponent/CollisionShape2D"), NodePath("../../CollisionShape2D")]
@@ -529,7 +424,7 @@ metadata/_custom_type_script = "uid://c7bsngihe1vew"
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("12_wqvmn")
-max_health = 25
+max_health = 200
 metadata/_custom_type_script = "uid://ch8r0xsbtuj63"
 
 [node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
@@ -578,23 +473,13 @@ script = ExtResource("21_hl47r")
 damage_amount = 1
 damage_cooldown = 0.5
 
-[node name="TextBubbleComponent" type="Node2D" parent="."]
-script = ExtResource("22_y4y2w")
-dialogue_data = ExtResource("23_5cvg5")
-display_duration = 5.0
-vertical_offset = -45.0
-
 [node name="KillTrackerComponent" type="Node" parent="."]
 script = ExtResource("24_6uk18")
-
-[node name="NemesisComponent" type="Node" parent="."]
-script = ExtResource("25_ektbh")
 
 [node name="HitDropComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
 script = ExtResource("28_ip5rs")
 health_component = NodePath("../HealthComponent")
 drop_scene = ExtResource("20_hepg3")
-max_drops = 3
 
 [node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("30_facing")
@@ -618,3 +503,10 @@ windup_sprite = NodePath("../Sprite2D")
 script = ExtResource("36_knockbackable")
 health = NodePath("../HealthComponent")
 state_machine = NodePath("../StateMachine")
+
+[node name="KnockbackDropComponent" type="Node" parent="." node_paths=PackedStringArray("knockbackable")]
+script = ExtResource("39_kbdrop")
+knockbackable = NodePath("../KnockbackableComponent")
+drop_scene = ExtResource("20_hepg3")
+drop_count = 5
+metadata/_custom_type_script = "uid://d0sj3p8j6ui7o"
