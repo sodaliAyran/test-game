@@ -13,6 +13,7 @@ var _hit_timer: Timer
 var _current_hit_index: int = 0
 var _total_hits: int = 1
 var _is_front_attack: bool = true
+var _is_attacking: bool = false
 
 func _ready() -> void:
 	_find_facing_component()
@@ -36,6 +37,8 @@ func _find_facing_component() -> void:
 
 
 func _on_facing_changed(_new_direction: Vector2) -> void:
+	if _is_attacking:
+		return
 	_set_weapon_direction()
 
 func _setup_hit_timer() -> void:
@@ -49,16 +52,22 @@ func _connect_to_weapon_component() -> void:
 	"""Connect to WeaponComponent signals if set"""
 	if weapon_component:
 		weapon_component.attack_started.connect(_on_attack_started)
+		weapon_component.attack_ended.connect(_on_attack_ended)
 	else:
 		push_warning("DirectionalWeaponComponent: weapon_component not set!")
 
+func _on_attack_ended() -> void:
+	_is_attacking = false
+
 func _on_attack_started(_target: Node2D = null) -> void:
+	_is_attacking = true
+
 	# Get multi-hit count from skills
 	if skill_modifier:
 		_total_hits = skill_modifier.get_multi_hit_count()
 	else:
 		_total_hits = 1
-	
+
 	# First hit - set direction for front attack
 	_current_hit_index = 0
 	_is_front_attack = true

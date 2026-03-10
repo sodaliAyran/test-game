@@ -6,9 +6,9 @@ extends Node
 @export var hitbox_collision: CollisionShape2D
 @export var skill_modifier: SkillModifierComponent
 @export var cooldown: SkillCooldownComponent
-@export var trigger_area: SkillTriggerArea
 @export var attack_duration: float = 0.3
 @export var fade_duration: float = 0.1
+@export var auto_trigger_on_cooldown: bool = true  ## When false, weapon only fires via external trigger_attack() calls
 
 signal attack_started(target: Node2D)
 signal attack_ended
@@ -25,11 +25,9 @@ func _ready() -> void:
 		sprite.modulate.a = 0.0  # Start fully transparent
 	if hitbox:
 		hitbox.active = false
-	# Collision shape stays enabled — area_entered fires as enemies walk in/out.
-	# The hitbox 'active' flag controls whether hits are processed.
 
 	_setup_attack_timer()
-	_connect_trigger_area()
+	_connect_cooldown()
 
 
 func _setup_attack_timer() -> void:
@@ -40,12 +38,14 @@ func _setup_attack_timer() -> void:
 	add_child(_attack_timer)
 
 
-func _connect_trigger_area() -> void:
-	if trigger_area:
-		trigger_area.attack_triggered.connect(_on_trigger_area_triggered)
+func _connect_cooldown() -> void:
+	if cooldown and auto_trigger_on_cooldown:
+		cooldown.cooldown_ready.connect(_on_cooldown_ready)
+		# Defer first attack so all sibling nodes have finished _ready()
+		_on_cooldown_ready.call_deferred()
 
 
-func _on_trigger_area_triggered() -> void:
+func _on_cooldown_ready() -> void:
 	trigger_attack()
 	if cooldown:
 		cooldown.start_cooldown()
@@ -80,6 +80,10 @@ func _start_attack() -> void:
 	# Apply damage multiplier to hitbox
 	if hitbox:
 		hitbox.set_damage_multiplier(damage_mult)
+
+	# Reposition hitbox to fixed attack position (e.g. slam)
+	if hitbox and attack_position is Vector2:
+		hitbox.global_position = attack_position
 
 	# Activate hitbox — collision shape is always enabled,
 	# so area_entered events are already tracked by the physics engine.

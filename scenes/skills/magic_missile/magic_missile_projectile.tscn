@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://d2xi4qow7loip"]
 
 [ext_resource type="Script" uid="uid://b1nc5f36tlofw" path="res://scripts/game/skills/projectile/projectile_component.gd" id="1_1dggj"]
-[ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_v6ytx"]
+[ext_resource type="Texture2D" uid="uid://bs0w478jdm7bm" path="res://assets/game/objects/magic_missile.png" id="1_v6ytx"]
 [ext_resource type="Script" uid="uid://cgv0h7in1cq8x" path="res://scripts/game/components/core/hitbox_component.gd" id="2_gdh0f"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arrow"]
@@ -12,8 +12,9 @@ z_index = 3
 collision_layer = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-2, 0.999999)
+scale = Vector2(0.863281, 0.929687)
 texture = ExtResource("1_v6ytx")
-region_enabled = true
 region_rect = Rect2(64, 800, 32, 32)
 
 [node name="ProjectileComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "hitbox")]

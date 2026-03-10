@@ -2,7 +2,7 @@ extends Control
 
 var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
 
-const GAME_SCENE := "res://scenes/test/test_aura.tscn"
+const GAME_SCENE := "res://scenes/test/test_3_v_1.tscn"
 const TITLE_COLOR := Color(0.784, 0.659, 0.306, 1.0) # Gold #C8A84E
 const BUTTON_NORMAL_COLOR := Color(0.6, 0.6, 0.6, 1.0)
 const BUTTON_HOVER_COLOR := Color(1.0, 1.0, 1.0, 1.0)

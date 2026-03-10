@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://dj3ftqqhuu0c6"]
+[gd_scene load_steps=25 format=3 uid="uid://dj3ftqqhuu0c6"]
 
 [ext_resource type="Texture2D" uid="uid://bmn5jb1xcp8lb" path="res://assets/game/characters/rogues.png" id="1_vdkrx"]
 [ext_resource type="Script" uid="uid://c5gmfinumygu4" path="res://scripts/game/components/core/hurtbox_component.gd" id="2_kctm8"]
@@ -18,11 +18,13 @@
 [ext_resource type="Script" uid="uid://dlyfprr1rxwtk" path="res://scenes/characters/player/warrior/warrior.gd" id="18_warrior_script"]
 [ext_resource type="Script" uid="uid://cljyqaixbkb4s" path="res://scripts/game/components/player/collection_tracker_component.gd" id="19_collection_tracker"]
 [ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="20_facing"]
-[ext_resource type="Script" uid="uid://cvpm7sjn7hur7" path="res://scripts/game/components/animation/facing_indicator_component.gd" id="21_facing_indicator"]
+[ext_resource type="Script" uid="uid://cwmj630op42rd" path="res://scripts/game/components/animation/weapon_orbit_component.gd" id="21_facing_indicator"]
 [ext_resource type="Script" uid="uid://78bffdkpypyb" path="res://scripts/game/components/player/skill_scene_loader.gd" id="22_skill_loader"]
+[ext_resource type="Script" uid="uid://cvpm7sjn7hur7" path="res://scripts/game/components/animation/facing_indicator_component.gd" id="23_facing_indicator"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ufoae"]
-height = 36.0
+radius = 6.0
+height = 16.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kctm8"]
 height = 36.0
@@ -33,12 +35,13 @@ radius = 29.8525
 [node name="Warrior" type="CharacterBody2D" groups=["Player"]]
 z_index = 1
 position = Vector2(141, 10)
-collision_mask = 0
+collision_mask = 4
 script = ExtResource("18_warrior_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-2, 0)
+position = Vector2(-2, 7)
 shape = SubResource("CapsuleShape2D_ufoae")
+debug_color = Color(0.302876, 0.627859, 0, 0.42)
 
 [node name="CharacterSprite" type="Sprite2D" parent="."]
 texture_filter = 1
@@ -56,6 +59,7 @@ health_component = NodePath("../HealthComponent")
 metadata/_custom_type_script = "uid://c5gmfinumygu4"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+visible = false
 position = Vector2(-2, 0)
 shape = SubResource("CapsuleShape2D_kctm8")
 debug_color = Color(0.993703, 0, 0.233591, 0.42)
@@ -83,12 +87,12 @@ metadata/_custom_type_script = "uid://850sk6q2ppie"
 [node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
 script = ExtResource("20_facing")
 sprite = NodePath("../CharacterSprite")
+use_full_direction = false
 
-[node name="FacingIndicatorComponent" type="Node2D" parent="." node_paths=PackedStringArray("facing")]
+[node name="WeaponOrbitComponent" type="Node" parent="." node_paths=PackedStringArray("facing")]
 script = ExtResource("21_facing_indicator")
 facing = NodePath("../FacingComponent")
-outer_radius = 25.0
-arc_angle = 0.5
+orbit_radius = 15.0
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_node_state")]
 script = ExtResource("7_nkuma")
@@ -151,6 +155,13 @@ debug_color = Color(0.697649, 0.493616, 0, 0.42)
 
 [node name="CollectionTrackerComponent" type="Node" parent="."]
 script = ExtResource("19_collection_tracker")
+
+[node name="FacingIndicatorComponent" type="Node2D" parent="." node_paths=PackedStringArray("facing")]
+visible = false
+script = ExtResource("23_facing_indicator")
+facing = NodePath("../FacingComponent")
+outer_radius = 35.0
+metadata/_custom_type_script = "uid://cvpm7sjn7hur7"
 
 [node name="SkillSceneLoader" type="Node" parent="."]
 script = ExtResource("22_skill_loader")

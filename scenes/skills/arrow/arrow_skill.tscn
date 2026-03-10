@@ -20,11 +20,10 @@ cooldown_time = 1.5
 skill_modifier = NodePath("../SkillModifierComponent")
 skill_id = "arrow"
 
-[node name="ProjectileSkillComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier", "cooldown", "trigger_area")]
+[node name="ProjectileSkillComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier", "cooldown")]
 script = ExtResource("3_projectile_skill")
 skill_modifier = NodePath("../SkillModifierComponent")
 cooldown = NodePath("../SkillCooldownComponent")
-trigger_area = NodePath("../SkillTriggerArea")
 projectile_scene = ExtResource("4_arrow_projectile")
 action_label = "arrow_attack"
 

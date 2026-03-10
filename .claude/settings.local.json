@@ -3,7 +3,8 @@
     "allow": [
       "Bash(find:*)",
       "Bash(powershell -Command:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(xargs grep -l \"sword_slash\")"
     ]
   }
 }

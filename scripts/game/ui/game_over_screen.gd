@@ -2,7 +2,7 @@ extends CanvasLayer
 
 var PIXEL_FONT = load("res://assets/game/ui/fonts/PixelOperator8.ttf")
 
-const GAME_SCENE := "res://scenes/test/test_aura.tscn"
+const GAME_SCENE := "res://scenes/test/test_3_v_1.tscn"
 const DIED_COLOR := Color(0.545, 0.0, 0.0, 1.0) # Dark red #8B0000
 const BUTTON_NORMAL_COLOR := Color(0.6, 0.6, 0.6, 1.0)
 const BUTTON_HOVER_COLOR := Color(1.0, 1.0, 1.0, 1.0)

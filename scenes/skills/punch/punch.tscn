@@ -64,13 +64,12 @@ scale = Vector2(0.443097, 0.431101)
 [node name="SkillModifierComponent" type="Node" parent="."]
 script = ExtResource("3_skill_modifier")
 
-[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier", "cooldown", "trigger_area")]
+[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier", "cooldown")]
 script = ExtResource("4_weapon")
 hitbox = NodePath("../HitboxComponent")
 hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
 skill_modifier = NodePath("../SkillModifierComponent")
 cooldown = NodePath("../SkillCooldownComponent")
-trigger_area = NodePath("../SkillTriggerArea")
 
 [node name="WeaponAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("animated_sprite", "weapon", "trigger_area")]
 script = ExtResource("8_weapon_anim")

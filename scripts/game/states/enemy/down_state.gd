@@ -56,9 +56,9 @@ func _on_exit() -> void:
 	_disconnect_health()
 	knockback_direction = Vector2.ZERO
 
-	# Trigger health recovery if knockbackable component exists
+	# Trigger health recovery and level up if knockbackable component exists
 	if knockbackable and knockbackable.has_method("recover"):
-		knockbackable.recover()
+		knockbackable.recover(true)
 
 func _connect_health() -> void:
 	if health and not health.died.is_connected(_on_death):

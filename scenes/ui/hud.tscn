@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://cryi1vowjjj0o" path="res://assets/game/ui/icons/skull_icon.png" id="3_skull_icon"]
 [ext_resource type="Texture2D" uid="uid://bmbewbjfc7to1" path="res://assets/game/ui/icons/coin_icon.png" id="4_coin_icon"]
 [ext_resource type="Script" uid="uid://cuxngiwma067k" path="res://scripts/game/ui/hud_xp_bar.gd" id="5_hud_xp_bar"]
-[ext_resource type="Script" path="res://scripts/game/ui/hud_skill_bar.gd" id="6_hud_skill_bar"]
+[ext_resource type="Script" uid="uid://d3taj1kr1jf77" path="res://scripts/game/ui/hud_skill_bar.gd" id="6_hud_skill_bar"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_panel"]
 content_margin_left = 12.0
@@ -72,6 +72,7 @@ xp_color = Color(0.2, 0.5, 0.95, 1)
 show_level = false
 
 [node name="SkillBar" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 7
 anchor_left = 0.5

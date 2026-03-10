@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://efkcarl70278" path="res://assets/game/objects/items.png" id="1_npg62"]
 [ext_resource type="Script" uid="uid://hwl4ehhdj5pi" path="res://scripts/game/components/collectibles/collectible_component.gd" id="2_collectible"]
-[ext_resource type="Script" path="res://scripts/game/components/animation/collect_animation_component.gd" id="3_collect_anim"]
+[ext_resource type="Script" uid="uid://cv7dr2q3o33dl" path="res://scripts/game/components/animation/collect_animation_component.gd" id="3_collect_anim"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_collect"]
 radius = 4.12311

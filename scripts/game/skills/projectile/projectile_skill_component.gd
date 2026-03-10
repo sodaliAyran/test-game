@@ -10,7 +10,6 @@ extends Node
 @export var skill_modifier: SkillModifierComponent
 @export var director_request: CombatDirectorRequestComponent
 @export var cooldown: SkillCooldownComponent
-@export var trigger_area: SkillTriggerArea
 
 @export_group("Projectile")
 @export var projectile_scene: PackedScene  ## The projectile scene to spawn
@@ -23,6 +22,7 @@ extends Node
 
 @export_group("Targeting")
 @export var auto_target_range: float = 300.0  ## Range for player auto-targeting
+@export var auto_fire: bool = true  ## If true, fires automatically when cooldown is ready (for player skills)
 
 @export_group("AP Integration")
 @export var ap_cost: float = 1.5
@@ -51,16 +51,19 @@ func _ready() -> void:
 	_find_character_body()
 	_find_facing_component()
 	_setup_timers()
-	_connect_trigger_area()
+	_connect_cooldown()
 
 
-func _connect_trigger_area() -> void:
-	if trigger_area:
-		trigger_area.attack_triggered.connect(_on_trigger_area_triggered)
+func _connect_cooldown() -> void:
+	if cooldown:
+		cooldown.cooldown_ready.connect(_on_cooldown_ready)
+		# Defer first attack so all sibling nodes have finished _ready()
+		_on_cooldown_ready.call_deferred()
 
 
-func _on_trigger_area_triggered() -> void:
-	fire_auto_target()
+func _on_cooldown_ready() -> void:
+	if auto_fire:
+		fire_auto_target()
 
 
 func _find_character_body() -> void:

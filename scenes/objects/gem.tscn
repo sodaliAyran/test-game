@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://b1g1mp2g6dlm4"]
+
+[ext_resource type="Script" uid="uid://hwl4ehhdj5pi" path="res://scripts/game/components/collectibles/collectible_component.gd" id="1_psgpg"]
+[ext_resource type="Texture2D" uid="uid://buu1bgxkvx5u2" path="res://assets/game/objects/xp.png" id="2_psgpg"]
+[ext_resource type="Script" uid="uid://cv7dr2q3o33dl" path="res://scripts/game/components/animation/collect_animation_component.gd" id="3_k1173"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_collect"]
+radius = 4.12311
+
+[node name="Gem" type="Node2D"]
+script = ExtResource("1_psgpg")
+collectible_type = "gem"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_psgpg")
+region_rect = Rect2(0, 768, 32, 32)
+
+[node name="CollectionArea" type="Area2D" parent="."]
+collision_layer = 64
+collision_mask = 128
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollectionArea"]
+shape = SubResource("CircleShape2D_collect")
+
+[node name="CollectAnimationComponent" type="Node" parent="."]
+script = ExtResource("3_k1173")

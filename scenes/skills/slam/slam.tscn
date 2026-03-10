@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c0tjde57dk7fb"]
+[gd_scene load_steps=28 format=3 uid="uid://c0tjde57dk7fb"]
 
 [ext_resource type="Texture2D" uid="uid://bpcmvo3pfiatg" path="res://assets/game/objects/Gemini_Generated_Image_r75qmjr75qmjr75q-removebg-preview.png" id="1_slam_sprite"]
 [ext_resource type="Script" uid="uid://bb2a368iguur2" path="res://scripts/game/skills/modifiers/skill_modifier_component.gd" id="2_skill_modifier"]
@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://5k6q2sr85ipo" path="res://scripts/game/skills/weapons/weapon_animation_component.gd" id="7_weapon_anim"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_trigger"]
-radius = 33.0151
+radius = 6.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fqq1s"]
 atlas = ExtResource("1_slam_sprite")
@@ -35,6 +35,50 @@ region = Rect2(213, 0, 71, 71)
 atlas = ExtResource("1_slam_sprite")
 region = Rect2(142, 0, 71, 71)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_md8nc"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(213, 0, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1sgso"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(284, 0, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w784c"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(142, 71, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yexwp"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(213, 71, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dedyl"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(284, 71, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_arp1x"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(355, 71, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j35kn"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(355, 142, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uuldb"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(426, 213, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_81cb8"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(426, 284, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_drfvl"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(426, 355, 71, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upull"]
+atlas = ExtResource("1_slam_sprite")
+region = Rect2(355, 426, 71, 71)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_md8nc"]
 animations = [{
 "frames": [{
@@ -59,6 +103,44 @@ animations = [{
 "loop": false,
 "name": &"attack",
 "speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_md8nc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1sgso")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w784c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yexwp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dedyl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_arp1x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j35kn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uuldb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_81cb8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_drfvl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upull")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
@@ -69,13 +151,11 @@ radius = 28.0713
 [node name="SkillModifierComponent" type="Node" parent="."]
 script = ExtResource("2_skill_modifier")
 
-[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier", "cooldown", "trigger_area")]
+[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier")]
 script = ExtResource("3_weapon")
 hitbox = NodePath("../HitboxComponent")
 hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
 skill_modifier = NodePath("../SkillModifierComponent")
-cooldown = NodePath("../SkillCooldownComponent")
-trigger_area = NodePath("../SkillTriggerArea")
 
 [node name="WeaponAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("animated_sprite", "weapon", "trigger_area")]
 script = ExtResource("7_weapon_anim")
@@ -100,15 +180,15 @@ require_direction = false
 shape = SubResource("CircleShape2D_trigger")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(9.53674e-07, 3.8147e-06)
+position = Vector2(5.68434e-14, 4.54747e-13)
 scale = Vector2(1.44366, 1.62676)
 sprite_frames = SubResource("SpriteFrames_md8nc")
-animation = &"attack"
-frame = 5
-frame_progress = 1.0
+animation = &"new_animation"
+frame_progress = 0.207638
 offset = Vector2(0, -18)
 
 [node name="HitboxComponent" type="Area2D" parent="."]
+top_level = true
 script = ExtResource("4_hitbox")
 min_damage = 4
 max_damage = 6
@@ -119,6 +199,5 @@ hitbox_collision_mask = 16
 metadata/_custom_type_script = "uid://cgv0h7in1cq8x"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent"]
-position = Vector2(0, -1)
 shape = SubResource("CircleShape2D_hitbox")
 debug_color = Color(0.86, 0.22, 0.22, 0.42)

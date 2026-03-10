@@ -5,6 +5,7 @@ extends Node
 ## and reports them to the GameStats manager
 
 @export var xp_per_coin: int = 1
+@export var xp_per_gem: int = 1
 
 func _ready() -> void:
 	# Wait a frame for parent to be fully ready
@@ -40,3 +41,6 @@ func _on_item_collected(collectible_type: String, value: int) -> void:
 	if collectible_type == "coin" and GameStats:
 		GameStats.add_coins(value)
 		GameStats.add_xp(value * xp_per_coin)
+	elif collectible_type == "gem" and GameStats:
+		GameStats.add_gems(value)
+		GameStats.add_xp(value * xp_per_gem)

@@ -12,9 +12,19 @@ signal entered_recovery()
 @export var preferred_ring: String = "inner"  # "inner" or "outer"
 @export var enemy_type_priority: float = 50.0  # Base priority for slot assignment
 
+## Distance the player must move from the lock point before enemy repositions
+@export var reposition_threshold: float = 50.0
+## Distance tolerance for considering enemy "at" its slot
+@export var arrival_distance: float = 8.0
+
 var target: Node2D = null
 var _wait_start_time: float = 0.0
 var _slot_manager: Node = null
+
+# Position locking - enemy stays put until player moves far enough
+var _locked: bool = false
+var _locked_position: Vector2 = Vector2.ZERO  # World position enemy locks to
+var _lock_player_position: Vector2 = Vector2.ZERO  # Player position when lock was set
 
 
 func _ready() -> void:
@@ -60,26 +70,58 @@ func release_current_slot() -> void:
 	if _slot_manager:
 		_slot_manager.release_slot(owner)
 	target = null
+	_locked = false
 	slot_lost.emit()
 
 
 ## Get the world position to move toward
-## Returns slot position if available, otherwise returns target position directly
+## Returns locked position if enemy has arrived at slot and player hasn't moved far,
+## otherwise returns the live slot position.
 func get_target_position() -> Vector2:
 	if _slot_manager:
 		# Check if in recovery zone
 		if _slot_manager.is_in_recovery(owner):
+			_locked = false
 			return _slot_manager.get_recovery_position(owner)
 
 		# Check if has slot
 		if _slot_manager.has_slot(owner):
-			return _slot_manager.get_slot_position(owner)
+			var live_slot_pos = _slot_manager.get_slot_position(owner)
+
+			if _locked:
+				# Check if player moved far enough to break the lock
+				if target and is_instance_valid(target):
+					var player_moved = target.global_position.distance_to(_lock_player_position)
+					if player_moved > reposition_threshold:
+						_locked = false
+						return live_slot_pos
+				return _locked_position
+			else:
+				# Not locked yet - check if we've arrived at the slot
+				var distance_to_slot = owner.global_position.distance_to(live_slot_pos)
+				if distance_to_slot <= arrival_distance:
+					_lock_position(live_slot_pos)
+					return _locked_position
+				return live_slot_pos
 
 	# Fallback to direct target position
 	if target and is_instance_valid(target):
 		return target.global_position
 
 	return owner.global_position
+
+
+## Lock the enemy to the current world position
+func _lock_position(world_pos: Vector2) -> void:
+	_locked = true
+	_locked_position = world_pos
+	if target and is_instance_valid(target):
+		_lock_player_position = target.global_position
+
+
+## Unlock position (e.g. when slot changes or enemy leaves engage)
+func unlock_position() -> void:
+	_locked = false
 
 
 ## Check if we're in the inner ring
@@ -128,6 +170,7 @@ func get_target() -> Node2D:
 
 func _on_promoted_to_inner(enemy: Node2D) -> void:
 	if enemy == owner:
+		_locked = false
 		promoted_to_inner.emit()
 
 

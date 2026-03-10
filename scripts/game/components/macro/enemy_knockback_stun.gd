@@ -12,7 +12,7 @@ extends Node
 @export var health: HealthComponent
 @export var state_machine: Node  # NodeStateMachine
 
-@onready var knockbackable: KnockbackableComponent = $KnockbackableComponent
+@onready var knockbackable: KnockbackableComponent = $KnockbackableCoasmponent
 @onready var stun_animation: StunAnimationComponent = $StunAnimationComponent
 @onready var stun_bar: StunBarComponent = $StunBarComponent
 @onready var down_animation: DownAnimationComponent = $DownAnimationComponent

@@ -8,6 +8,7 @@ extends Node
 @export var rotation_amplitude: float = 0.1
 @export var scale_amplitude: Vector2 = Vector2(0.1, 0.1)
 
+var enabled: bool = true
 var time: float = 0.0
 var original_scale: Vector2
 
@@ -16,6 +17,8 @@ func _ready() -> void:
 		original_scale = sprite.scale
 
 func play(delta: float, movement_direction: Vector2 = Vector2.ZERO, target_position: Vector2 = Vector2.ZERO) -> void:
+	if not enabled:
+		return
 	time += delta
 	var sine_val = sin(time * frequency)
 	

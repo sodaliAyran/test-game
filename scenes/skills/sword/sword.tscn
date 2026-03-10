@@ -83,7 +83,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"attack",
-"speed": 10.0
+"speed": 1.0
 }]
 
 [node name="Sword" type="Node2D"]
@@ -91,13 +91,12 @@ animations = [{
 [node name="SkillModifierComponent" type="Node" parent="."]
 script = ExtResource("6_skill_modifier")
 
-[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier", "cooldown", "trigger_area")]
+[node name="WeaponComponent" type="Node" parent="." node_paths=PackedStringArray("hitbox", "hitbox_collision", "skill_modifier")]
 script = ExtResource("3_weapon")
 hitbox = NodePath("../HitboxComponent")
 hitbox_collision = NodePath("../HitboxComponent/CollisionShape2D")
 skill_modifier = NodePath("../SkillModifierComponent")
-cooldown = NodePath("../SkillCooldownComponent")
-trigger_area = NodePath("../SkillTriggerArea")
+auto_trigger_on_cooldown = false
 
 [node name="WeaponAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("animated_sprite", "weapon", "trigger_area")]
 script = ExtResource("9_weapon_anim")
@@ -113,7 +112,7 @@ skill_modifier = NodePath("../SkillModifierComponent")
 
 [node name="SkillCooldownComponent" type="Node" parent="." node_paths=PackedStringArray("skill_modifier")]
 script = ExtResource("7_cooldown")
-cooldown_time = 5.0
+cooldown_time = 0.5
 skill_modifier = NodePath("../SkillModifierComponent")
 skill_id = "sword_slash"
 
@@ -122,8 +121,9 @@ collision_layer = 0
 collision_mask = 2
 monitorable = false
 script = ExtResource("8_trigger")
-detection_radius = 35.0
+detection_radius = 45.0
 cooldown = NodePath("../SkillCooldownComponent")
+cone_angle = 70.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SkillTriggerArea"]
 shape = SubResource("CircleShape2D_trigger")
@@ -147,3 +147,5 @@ sprite_frames = SubResource("SpriteFrames_4c4h3")
 animation = &"attack"
 frame = 8
 frame_progress = 1.0
+
+[connection signal="attack_triggered" from="SkillTriggerArea" to="WeaponComponent" method="trigger_attack"]

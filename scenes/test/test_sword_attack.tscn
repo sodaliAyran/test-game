@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bw3hmg6cihob2"]
+
+[ext_resource type="PackedScene" uid="uid://bcbxgi5acxmx6" path="res://scenes/weapons/weapon_sword.tscn" id="1_sword"]
+[ext_resource type="Script" uid="uid://ciwakjxlfx61m" path="res://scenes/test/test_sword_attack.gd" id="2_script"]
+
+[node name="TestSwordAttack" type="Node2D"]
+position = Vector2(141, -135)
+script = ExtResource("2_script")
+
+[node name="Sword" parent="." instance=ExtResource("1_sword")]
+
+[node name="Label" type="Label" parent="."]
+offset_left = -300.0
+offset_top = -160.0
+offset_right = 300.0
+offset_bottom = -130.0
+text = "Arrow keys: change direction | Space: manual attack | Auto-attacks every 1.5s"
+horizontal_alignment = 1

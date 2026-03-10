@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://bcbxgi5acxmx6"]
+
+[ext_resource type="Texture2D" uid="uid://b0n71t8wn3pqg" path="res://assets/game/objects/sword.png" id="1_o616w"]
+[ext_resource type="Script" uid="uid://850sk6q2ppie" path="res://scripts/game/components/animation/wobble_animation_component.gd" id="2_3pnln"]
+[ext_resource type="Script" uid="uid://dbp82361dcucx" path="res://scripts/game/components/core/facing_component.gd" id="2_58ehi"]
+[ext_resource type="Script" uid="uid://c3kn6qjggp3rx" path="res://scripts/game/components/animation/sword_attack_animation_component.gd" id="4_attack"]
+
+[node name="Sword" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_o616w")
+
+[node name="FacingComponent" type="Node" parent="." node_paths=PackedStringArray("sprite")]
+script = ExtResource("2_58ehi")
+sprite = NodePath("../Sprite2D")
+metadata/_custom_type_script = "uid://dbp82361dcucx"
+
+[node name="WobbleAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sprite", "facing")]
+script = ExtResource("2_3pnln")
+sprite = NodePath("../Sprite2D")
+facing = NodePath("../FacingComponent")
+metadata/_custom_type_script = "uid://850sk6q2ppie"
+
+[node name="SwordAttackAnimationComponent" type="Node" parent="." node_paths=PackedStringArray("sword_root", "sprite")]
+script = ExtResource("4_attack")
+sword_root = NodePath("..")
+sprite = NodePath("../Sprite2D")
+ghost_count = 15
+ghost_arc_spread = 1.0

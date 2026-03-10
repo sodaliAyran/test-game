@@ -5,6 +5,7 @@ extends Node
 
 signal kill_count_changed(new_count: int)
 signal coin_count_changed(new_count: int)
+signal gem_count_changed(new_count: int)
 signal xp_changed(current_xp: int, xp_for_next_level: int, level: int)
 signal level_up(new_level: int)
 
@@ -12,6 +13,7 @@ const MAX_LEVEL: int = 50
 
 var kill_count: int = 0
 var coin_count: int = 0
+var gem_count: int = 0
 var current_xp: int = 0
 var player_level: int = 1
 var xp_for_next_level: int = 5
@@ -31,15 +33,23 @@ func add_coins(amount: int) -> void:
 	coin_count_changed.emit(coin_count)
 	print("GameStats: Coin count = %d" % coin_count)
 
+func add_gems(amount: int) -> void:
+	"""Add gems to the counter."""
+	gem_count += amount
+	gem_count_changed.emit(gem_count)
+	print("GameStats: Gem count = %d" % gem_count)
+
 func reset_stats() -> void:
 	"""Reset all statistics to zero."""
 	kill_count = 0
 	coin_count = 0
+	gem_count = 0
 	current_xp = 0
 	player_level = 1
 	xp_for_next_level = _calculate_xp_for_level(1)
 	kill_count_changed.emit(kill_count)
 	coin_count_changed.emit(coin_count)
+	gem_count_changed.emit(gem_count)
 	xp_changed.emit(current_xp, xp_for_next_level, player_level)
 	print("GameStats: Statistics reset")
 

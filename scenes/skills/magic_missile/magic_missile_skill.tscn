@@ -21,4 +21,5 @@ script = ExtResource("3_cqb36")
 skill_modifier = NodePath("../SkillModifierComponent")
 cooldown = NodePath("../SkillCooldownComponent")
 projectile_scene = ExtResource("4_1ybr5")
+auto_fire = false
 action_label = "magic_missile"
